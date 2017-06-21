@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DataSet.h"
+#include "parameters.h"
 
 
 //ƒoƒCƒg—ñ‚©‚çint‚Ö‚Ì•ÏŠ·
@@ -13,7 +14,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<vector<double>> DataSet::readTrainingFile(string filename)
+vector<VectorXd> DataSet::readTrainingFile(string filename)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -31,12 +32,12 @@ vector<vector<double>> DataSet::readTrainingFile(string filename)
 	ifs.read((char*)&cols, sizeof(cols));
 	cols = reverseInt(cols);
 
-	vector<vector<double>> images(number_of_images);
+	vector<VectorXd> images(number_of_images);
 	cout << magic_number << " " << number_of_images << " " << rows << " " << cols << endl;
 
 	for (int i = 0; i < number_of_images; i++)
 	{
-		images[i].resize(rows * cols);
+		images[i] = VectorXd::Zero(PIXEL);
 
 		for (int row = 0; row < rows; row++)
 		{
@@ -48,7 +49,7 @@ vector<vector<double>> DataSet::readTrainingFile(string filename)
 			}
 		}
 	}
-	trainingData = images;
+	data = images;
 	return images;
 }
 
@@ -63,7 +64,7 @@ vector<double> DataSet::readLabelFile(string filename)
 	ifs.read((char*)&number_of_images, sizeof(number_of_images));
 	number_of_images = reverseInt(number_of_images);
 
-	vector<double> label(number_of_images);
+	vector<double> _label(number_of_images);
 
 	cout << number_of_images << endl;
 
@@ -71,8 +72,8 @@ vector<double> DataSet::readLabelFile(string filename)
 	{
 		unsigned char temp = 0;
 		ifs.read((char*)&temp, sizeof(temp));
-		label[i] = double(temp);
+		_label[i] = double(temp);
 	}
-	trainingLabel = label;
-	return label;
+	label = _label;
+	return _label;
 }

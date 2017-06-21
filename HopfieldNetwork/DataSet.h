@@ -2,14 +2,17 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "Eigen/Core"
 
 using namespace std;
+using namespace Eigen;
 
 class DataSet
 {
 public:
-	vector<vector<double>> trainingData;
-	vector<double> trainingLabel;
-	vector<vector<double>> readTrainingFile(string filename);
+	vector<VectorXd> data;
+	vector<double> label;
+	vector<VectorXd> readTrainingFile(string filename);
 	vector<double> readLabelFile(string filename);
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
