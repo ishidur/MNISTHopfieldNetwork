@@ -5,8 +5,11 @@
 
 using namespace std;
 
-class DataSet {
+class DataSet
+{
 public:
-	vector<vector<double> > readTrainingFile(string filename);
+	vector<vector<double>> trainingData;
+	vector<double> trainingLabel;
+	vector<vector<double>> readTrainingFile(string filename);
 	vector<double> readLabelFile(string filename);
 };

@@ -48,6 +48,7 @@ vector<vector<double>> DataSet::readTrainingFile(string filename)
 			}
 		}
 	}
+	trainingData = images;
 	return images;
 }
 
@@ -73,5 +74,6 @@ vector<double> DataSet::readLabelFile(string filename)
 		ifs.read((char*)&temp, sizeof(temp));
 		label[i] = double(temp);
 	}
+	trainingLabel = label;
 	return label;
 }
