@@ -57,7 +57,6 @@ vector<double> DataSet::readLabelFile(string filename)
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
 	int number_of_images = 0;
-
 	//ヘッダー部より情報を読取る。
 	ifs.read((char*)&magic_number, sizeof(magic_number));
 	magic_number = reverseInt(magic_number);
