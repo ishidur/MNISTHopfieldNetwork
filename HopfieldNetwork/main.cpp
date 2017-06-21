@@ -18,6 +18,8 @@ void readData()
 	return;
 }
 
+ofstream ofs("asdfasdf.csv"); //ファイル出力ストリーム
+
 void renderNumber(VectorXd data)
 {
 	int n = int(sqrt(PIXEL));
@@ -25,10 +27,14 @@ void renderNumber(VectorXd data)
 	{
 		for (int j = 0; j < n; ++j)
 		{
-			cout << int(data[i * n + j] / 255 + 0.5) << " ";
+			int a = int(data[i * n + j] / 255 + 0.7);
+			cout << a << " ";
+			ofs << a << " ";
 		}
 		cout << endl;
+		ofs << endl;
 	}
+	ofs << endl;
 }
 
 void calcAverageNumeric()
