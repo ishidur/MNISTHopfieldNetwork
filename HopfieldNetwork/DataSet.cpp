@@ -21,13 +21,13 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 	int cols = 0;
 
 	//ヘッダー部より情報を読取る。
-	ifs.read((char*)&magic_number, sizeof(magic_number));
+	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
 	magic_number = reverseInt(magic_number);
-	ifs.read((char*)&number_of_images, sizeof(number_of_images));
+	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
 	number_of_images = reverseInt(number_of_images);
-	ifs.read((char*)&rows, sizeof(rows));
+	ifs.read(reinterpret_cast<char*>(&rows), sizeof(rows));
 	rows = reverseInt(rows);
-	ifs.read((char*)&cols, sizeof(cols));
+	ifs.read(reinterpret_cast<char*>(&cols), sizeof(cols));
 	cols = reverseInt(cols);
 
 	vector<VectorXd> images(number_of_images);
@@ -56,9 +56,9 @@ vector<double> DataSet::readLabelFile(string filename)
 	int magic_number = 0;
 	int number_of_images = 0;
 	//ヘッダー部より情報を読取る。
-	ifs.read((char*)&magic_number, sizeof(magic_number));
+	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
 	magic_number = reverseInt(magic_number);
-	ifs.read((char*)&number_of_images, sizeof(number_of_images));
+	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
 	number_of_images = reverseInt(number_of_images);
 
 	vector<double> _label(number_of_images);
@@ -68,7 +68,7 @@ vector<double> DataSet::readLabelFile(string filename)
 	for (int i = 0; i < number_of_images; i++)
 	{
 		unsigned char temp = 0;
-		ifs.read((char*)&temp, sizeof(temp));
+		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
 		_label[i] = double(temp);
 	}
 	return _label;
