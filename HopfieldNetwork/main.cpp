@@ -12,7 +12,6 @@ void makePatternSet()
 	TrainData trainData;
 	trainData.load();
 	cout << "data loaded!" << endl;
-	trainData.setWrite();
 	trainData.calcAverageNumeric();
 }
 

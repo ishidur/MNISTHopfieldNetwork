@@ -7,12 +7,6 @@ TrainData::TrainData(string _imagePath, string _labelPath)
 	labelPath = _labelPath;
 }
 
-void TrainData::setWrite()
-{
-	setFileName(outFileName);
-}
-
-
 void TrainData::load()
 {
 	images = readImageFile(imagePath);
@@ -21,9 +15,10 @@ void TrainData::load()
 
 void TrainData::calcAverageNumeric()
 {
+	ofstream prettyOFS(prettyFileName);
 	array<VectorXd, 10> patterns;
 	patterns.fill(VectorXd::Zero(PIXEL));
-	int counts[10] = { 0 };
+	int counts[10] = {0};
 	for (int i = 0; i < images.size(); ++i)
 	{
 		patterns[int(labels[i])] += images[i];
@@ -36,7 +31,9 @@ void TrainData::calcAverageNumeric()
 		{
 			patterns[j] /= counts[j];
 		}
-		renderNumber(patterns[j]);
-		cout << endl;
+		renderNumber(patterns[j], prettyOFS);
+		prettyOFS << endl;
 	}
+	prettyOFS.close();
+	cout << "write file: " << prettyFileName << " successfully!" << endl;
 }

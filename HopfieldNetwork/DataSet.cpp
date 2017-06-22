@@ -1,15 +1,6 @@
 #include "stdafx.h"
 #include "DataSet.h"
 
-void DataSet::setFileName(string _filename)
-{
-	outFileName = _filename;
-	if (outFileName != "")
-	{
-		ofs.open(outFileName);
-	}
-}
-
 //ƒoƒCƒg—ñ‚©‚çint‚Ö‚Ì•ÏŠ·
 int reverseInt(int i)
 {
@@ -83,35 +74,20 @@ vector<double> DataSet::readLabelFile(string filename)
 	return _label;
 }
 
-void DataSet::renderNumber(VectorXd data)
+void DataSet::renderNumber(VectorXd data, ostream& out)
 {
-	bool isSetFilename = (outFileName != "");
 	int n = int(sqrt(data.size()));
-	if (isSetFilename)
+	for (int i = 0; i < n; ++i)
 	{
-		for (int i = 0; i < n; ++i)
+		for (int j = 0; j < n; ++j)
 		{
-			for (int j = 0; j < n; ++j)
+			int a = int(data[i * n + j] / 255 + 0.7);
+			out << a;
+			if (j < n - 1)
 			{
-				int a = int(data[i * n + j] / 255 + 0.7);
-				cout << a << " ";
-				ofs << a << " ";
+				out << ",";
 			}
-			cout << endl;
-			ofs << endl;
 		}
-		ofs << endl;
-	}
-	else
-	{
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < n; ++j)
-			{
-				int a = int(data[i * n + j] / 255 + 0.7);
-				cout << a << " ";
-			}
-			cout << endl;
-		}
+		out << endl;
 	}
 }
