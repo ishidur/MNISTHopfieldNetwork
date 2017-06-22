@@ -2,49 +2,41 @@
 //
 
 #include "stdafx.h"
-#include "DataSet.h"
-#include "parameters.h"
-#include "Eigen/Core"
+#include "TrainData.h"
+#include "TestData.h"
+#include <array>
 
-DataSet train;
-DataSet test;
+TrainData trainData;
+TestData testData;
 
-void readData()
-{
-	train.readTrainingFile(TRAIN_IMAGE_PATH);
-	train.readLabelFile(TRAIN_LABEL_PATH);
-	//	test.readTrainingFile(TEST_IMAGE_PATH);
-	//	test.readLabelFile(TEST_LABEL_PATH);
-	return;
-}
-
-ofstream ofs("asdfasdf.csv"); //ファイル出力ストリーム
+//ofstream ofs("asdfasdf.csv"); //ファイル出力ストリーム
 
 void renderNumber(VectorXd data)
 {
-	int n = int(sqrt(PIXEL));
+	int n = int(sqrt(data.size()));
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < n; ++j)
 		{
 			int a = int(data[i * n + j] / 255 + 0.7);
 			cout << a << " ";
-			ofs << a << " ";
+			//			ofs << a << " ";
 		}
 		cout << endl;
-		ofs << endl;
+		//		ofs << endl;
 	}
-	ofs << endl;
+	//	ofs << endl;
 }
 
 void calcAverageNumeric()
 {
-	VectorXd patterns[10] = {VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL), VectorXd::Zero(PIXEL)};
+	array<VectorXd,10> patterns;
+	patterns.fill(VectorXd::Zero(PIXEL));
 	int counts[10] = {0};
-	for (int i = 0; i < train.data.size(); ++i)
+	for (int i = 0; i < trainData.images.size(); ++i)
 	{
-		patterns[int(train.label[i])] += train.data[i];
-		counts[int(train.label[i])] += 1;
+		patterns[int(trainData.labels[i])] += trainData.images[i];
+		counts[int(trainData.labels[i])] += 1;
 	}
 
 	for (int j = 0; j < 10; ++j)
@@ -60,13 +52,13 @@ void calcAverageNumeric()
 
 int main()
 {
-	readData();
+	trainData.load();
 	cout << "data loaded!" << endl;
-	//	for (int i = 0; i < train.trainingData.size(); ++i)
-	//	{
-	//	cout << test.label[0] << endl;
-	//	renderNumber(test.data[0]);
-	//	}
+	//		for (int i = 0; i < trainData.images.size(); ++i)
+	//		{
+	//		cout << testData.labels[0] << endl;
+	//		renderNumber(testData.images[0]);
+	//		}
 	calcAverageNumeric();
 	return 0;
 }

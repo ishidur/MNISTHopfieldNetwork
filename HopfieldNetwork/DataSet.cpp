@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "DataSet.h"
-#include "parameters.h"
 
 
 //ƒoƒCƒg—ñ‚©‚çint‚Ö‚Ì•ÏŠ·
@@ -14,7 +13,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<VectorXd> DataSet::readTrainingFile(string filename)
+vector<VectorXd> DataSet::readImageFile(string filename)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -49,7 +48,6 @@ vector<VectorXd> DataSet::readTrainingFile(string filename)
 			}
 		}
 	}
-	data = images;
 	return images;
 }
 
@@ -74,6 +72,5 @@ vector<double> DataSet::readLabelFile(string filename)
 		ifs.read((char*)&temp, sizeof(temp));
 		_label[i] = double(temp);
 	}
-	label = _label;
 	return _label;
 }
