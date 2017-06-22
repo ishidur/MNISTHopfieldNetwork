@@ -5,14 +5,19 @@
 #include "TrainData.h"
 #include "TestData.h"
 
-TrainData trainData;
 TestData testData;
 
-int main()
+void makePatternSet()
 {
+	TrainData trainData;
 	trainData.load();
 	cout << "data loaded!" << endl;
 	trainData.setWrite();
 	trainData.calcAverageNumeric();
+}
+
+int main()
+{
+	makePatternSet();
 	return 0;
 }

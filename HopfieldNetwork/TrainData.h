@@ -5,7 +5,7 @@ class TrainData :
 	public DataSet
 {
 public:
-	string outFileName = "trainData.csv";
+	string outFileName = "trainData.csv"; //出力ファイル名
 	string imagePath;
 	string labelPath;
 	vector<VectorXd> images;

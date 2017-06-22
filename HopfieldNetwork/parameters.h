@@ -1,7 +1,6 @@
 #pragma once
 
 #define PIXEL 784
-#define ROW 28
 #define THRESHOLD 0.0
 #define TRAIN_IMAGE_PATH "./MNISTData/train-images-idx3-ubyte/train-images.idx3-ubyte"
 #define TRAIN_LABEL_PATH "./MNISTData/train-labels-idx1-ubyte/train-labels.idx1-ubyte"
