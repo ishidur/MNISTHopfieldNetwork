@@ -13,6 +13,7 @@ void makePatternSet()
 	trainData.load();
 	cout << "data loaded!" << endl;
 	trainData.calcAverageNumeric();
+	trainData.savePatterns();
 }
 
 int main()

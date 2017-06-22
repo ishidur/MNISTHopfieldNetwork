@@ -11,6 +11,7 @@
 #include <tchar.h>
 #include "Eigen/Core"
 #include "parameters.h"
+#include <array>
 
 using namespace std;
 using namespace Eigen;

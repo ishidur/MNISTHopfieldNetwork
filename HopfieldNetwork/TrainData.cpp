@@ -15,13 +15,13 @@ void TrainData::load()
 
 void TrainData::calcAverageNumeric()
 {
-	ofstream prettyOFS(prettyFileName);
-	array<VectorXd, 10> patterns;
-	patterns.fill(VectorXd::Zero(PIXEL));
+	ofstream ofs(prettyFileName);
+	array<VectorXd, 10> _patterns;
+	_patterns.fill(VectorXd::Zero(PIXEL));
 	int counts[10] = {0};
 	for (int i = 0; i < images.size(); ++i)
 	{
-		patterns[int(labels[i])] += images[i];
+		_patterns[int(labels[i])] += images[i];
 		counts[int(labels[i])] += 1;
 	}
 
@@ -29,11 +29,44 @@ void TrainData::calcAverageNumeric()
 	{
 		if (counts[j] != 0)
 		{
-			patterns[j] /= counts[j];
+			_patterns[j] /= counts[j];
 		}
-		renderNumber(patterns[j], prettyOFS);
-		prettyOFS << endl;
+		renderNumber(_patterns[j], ofs);
+		ofs << endl;
 	}
-	prettyOFS.close();
+	ofs.close();
 	cout << "write file: " << prettyFileName << " successfully!" << endl;
+	patterns = _patterns;
+}
+
+void outputPattern(VectorXd v, ostream& out = cout)
+{
+	int n = v.size();
+	for (int i = 0; i < n; ++i)
+	{
+		int a = int(v[i] / 255 + 0.7);
+		out << a;
+		if (i < n - 1)
+		{
+			out << ",";
+		}
+	}
+	out << endl;
+}
+
+void TrainData::savePatterns()
+{
+	if (patterns[0].size() == 0)
+	{
+		return;
+	}
+	ofstream ofs(outFileName);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		ofs << i << endl;
+		outputPattern(patterns[i], ofs);
+	}
+	ofs.close();
+	cout << "write file: " << outFileName << " successfully!" << endl;
 }
