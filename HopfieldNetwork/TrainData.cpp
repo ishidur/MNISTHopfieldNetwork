@@ -60,7 +60,7 @@ void TrainData::savePatterns()
 	{
 		return;
 	}
-	ofstream ofs(outFileName);
+	ofstream ofs(rawFileName);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -68,5 +68,5 @@ void TrainData::savePatterns()
 		outputPattern(patterns[i], ofs);
 	}
 	ofs.close();
-	cout << "write file: " << outFileName << " successfully!" << endl;
+	cout << "write file: " << rawFileName << " successfully!" << endl;
 }
