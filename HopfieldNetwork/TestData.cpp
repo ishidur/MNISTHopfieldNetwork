@@ -7,11 +7,6 @@ TestData::TestData(string _imagePath, string _labelPath)
 	labelPath = _labelPath;
 }
 
-void TestData::setWrite()
-{
-	setFileName(outFileName);
-}
-
 void TestData::load()
 {
 	images = readImageFile(imagePath);

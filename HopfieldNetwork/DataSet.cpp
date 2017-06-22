@@ -1,15 +1,6 @@
 #include "stdafx.h"
 #include "DataSet.h"
 
-void DataSet::setFileName(string _filename)
-{
-	outFileName = _filename;
-	if (outFileName != "")
-	{
-		ofs.open(outFileName);
-	}
-}
-
 //バイト列からintへの変換
 int reverseInt(int i)
 {
@@ -30,13 +21,13 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 	int cols = 0;
 
 	//ヘッダー部より情報を読取る。
-	ifs.read((char*)&magic_number, sizeof(magic_number));
+	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
 	magic_number = reverseInt(magic_number);
-	ifs.read((char*)&number_of_images, sizeof(number_of_images));
+	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
 	number_of_images = reverseInt(number_of_images);
-	ifs.read((char*)&rows, sizeof(rows));
+	ifs.read(reinterpret_cast<char*>(&rows), sizeof(rows));
 	rows = reverseInt(rows);
-	ifs.read((char*)&cols, sizeof(cols));
+	ifs.read(reinterpret_cast<char*>(&cols), sizeof(cols));
 	cols = reverseInt(cols);
 
 	vector<VectorXd> images(number_of_images);
@@ -65,9 +56,9 @@ vector<double> DataSet::readLabelFile(string filename)
 	int magic_number = 0;
 	int number_of_images = 0;
 	//ヘッダー部より情報を読取る。
-	ifs.read((char*)&magic_number, sizeof(magic_number));
+	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
 	magic_number = reverseInt(magic_number);
-	ifs.read((char*)&number_of_images, sizeof(number_of_images));
+	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
 	number_of_images = reverseInt(number_of_images);
 
 	vector<double> _label(number_of_images);
@@ -77,41 +68,26 @@ vector<double> DataSet::readLabelFile(string filename)
 	for (int i = 0; i < number_of_images; i++)
 	{
 		unsigned char temp = 0;
-		ifs.read((char*)&temp, sizeof(temp));
+		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
 		_label[i] = double(temp);
 	}
 	return _label;
 }
 
-void DataSet::renderNumber(VectorXd data)
+void DataSet::renderNumber(VectorXd data, ostream& out)
 {
-	bool isSetFilename = (outFileName != "");
 	int n = int(sqrt(data.size()));
-	if (isSetFilename)
+	for (int i = 0; i < n; ++i)
 	{
-		for (int i = 0; i < n; ++i)
+		for (int j = 0; j < n; ++j)
 		{
-			for (int j = 0; j < n; ++j)
+			int a = int(data[i * n + j] / 255 + 0.7);
+			out << a;
+			if (j < n - 1)
 			{
-				int a = int(data[i * n + j] / 255 + 0.7);
-				cout << a << " ";
-				ofs << a << " ";
+				out << ",";
 			}
-			cout << endl;
-			ofs << endl;
 		}
-		ofs << endl;
-	}
-	else
-	{
-		for (int i = 0; i < n; ++i)
-		{
-			for (int j = 0; j < n; ++j)
-			{
-				int a = int(data[i * n + j] / 255 + 0.7);
-				cout << a << " ";
-			}
-			cout << endl;
-		}
+		out << endl;
 	}
 }
