@@ -39,9 +39,10 @@ void TrainData::calcAverageNumeric()
 	patterns = _patterns;
 }
 
-void outputPattern(VectorXd v, ostream& out = cout)
+VectorXd outputPattern(VectorXd v, ostream& out = cout)
 {
 	int n = v.size();
+	VectorXd o(v.size());
 	for (int i = 0; i < n; ++i)
 	{
 		int a = int(v[i] / 255 + 0.7);
@@ -50,8 +51,10 @@ void outputPattern(VectorXd v, ostream& out = cout)
 		{
 			out << ",";
 		}
+		o[i] = a;
 	}
 	out << endl;
+	return o;
 }
 
 void TrainData::savePatterns()
@@ -64,8 +67,8 @@ void TrainData::savePatterns()
 
 	for (int i = 0; i < 10; ++i)
 	{
-		ofs << i << endl;
-		outputPattern(patterns[i], ofs);
+		ofs << i << ",";
+		patterns[i] = outputPattern(patterns[i], ofs);
 	}
 	ofs.close();
 	cout << "write file: " << rawFileName << " successfully!" << endl;

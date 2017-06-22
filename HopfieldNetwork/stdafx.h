@@ -9,9 +9,10 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <array>
+
 #include "Eigen/Core"
 #include "parameters.h"
-#include <array>
 
 using namespace std;
 using namespace Eigen;
