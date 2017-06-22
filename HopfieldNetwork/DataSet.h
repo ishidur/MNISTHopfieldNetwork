@@ -2,11 +2,16 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <array>
 
 class DataSet
 {
+private:
+	string outFileName = "";
+	ofstream ofs;
 public:
+	void setFileName(string filename);
 	vector<VectorXd> readImageFile(string filename);
 	vector<double> readLabelFile(string filename);
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	void renderNumber(VectorXd data);
 };
