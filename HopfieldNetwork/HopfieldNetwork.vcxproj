@@ -143,6 +143,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TestData.h" />
+    <ClInclude Include="TrainData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DataSet.cpp" />
@@ -153,6 +155,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TestData.cpp" />
+    <ClCompile Include="TrainData.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HopfieldNetwork.rc" />

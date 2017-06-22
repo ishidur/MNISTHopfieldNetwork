@@ -1,7 +1,14 @@
 #include "stdafx.h"
 #include "DataSet.h"
-#include "parameters.h"
 
+void DataSet::setFileName(string _filename)
+{
+	outFileName = _filename;
+	if (outFileName != "")
+	{
+		ofs.open(outFileName);
+	}
+}
 
 //ƒoƒCƒg—ñ‚©‚çint‚Ö‚Ì•ÏŠ·
 int reverseInt(int i)
@@ -14,7 +21,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<VectorXd> DataSet::readTrainingFile(string filename)
+vector<VectorXd> DataSet::readImageFile(string filename)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -49,7 +56,6 @@ vector<VectorXd> DataSet::readTrainingFile(string filename)
 			}
 		}
 	}
-	data = images;
 	return images;
 }
 
@@ -74,6 +80,38 @@ vector<double> DataSet::readLabelFile(string filename)
 		ifs.read((char*)&temp, sizeof(temp));
 		_label[i] = double(temp);
 	}
-	label = _label;
 	return _label;
+}
+
+void DataSet::renderNumber(VectorXd data)
+{
+	bool isSetFilename = (outFileName != "");
+	int n = int(sqrt(data.size()));
+	if (isSetFilename)
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			for (int j = 0; j < n; ++j)
+			{
+				int a = int(data[i * n + j] / 255 + 0.7);
+				cout << a << " ";
+				ofs << a << " ";
+			}
+			cout << endl;
+			ofs << endl;
+		}
+		ofs << endl;
+	}
+	else
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			for (int j = 0; j < n; ++j)
+			{
+				int a = int(data[i * n + j] / 255 + 0.7);
+				cout << a << " ";
+			}
+			cout << endl;
+		}
+	}
 }

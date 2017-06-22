@@ -9,7 +9,11 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include "Eigen/Core"
+#include "parameters.h"
 
+using namespace std;
+using namespace Eigen;
 
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください
