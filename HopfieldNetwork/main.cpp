@@ -11,16 +11,16 @@
 #include <sstream>
 #include <iomanip>
 
-//TestData testData;
+TestData testData;
 array<VectorXd, 10> patternSet;
 MatrixXd weightMtrx(PIXEL,PIXEL);
 
-std::vector<std::string> split(const std::string& str, char sep)
+vector<string> split(const string& str, char sep)
 {
-	std::vector<std::string> v;
-	std::stringstream ss(str);
-	std::string buffer;
-	while (std::getline(ss, buffer, sep))
+	vector<string> v;
+	stringstream ss(str);
+	string buffer;
+	while (getline(ss, buffer, sep))
 	{
 		v.push_back(buffer);
 	}
@@ -71,9 +71,26 @@ void outMatrix(MatrixXd mtrx, ostream& out = cout)
 	}
 }
 
+MatrixXd calcQMatrix()
+{
+	cout << "calculating q matrix..." << endl;
+	int lim = patternSet.size();
+	MatrixXd result = MatrixXd::Zero(lim, lim);
+	for (int i = 0; i < lim; ++i)
+	{
+		for (int j = 0; j < lim; ++j)
+		{
+			result(i, j) = double(patternSet[i].dot(patternSet[j])) / double(PIXEL);
+		}
+	}
+	cout << endl << "Done." << endl;
+	return result.inverse();
+}
+
 void calcWeightMatrix()
 {
 	cout << "calculating weight matrix..." << endl;
+	MatrixXd qMtrxInv = calcQMatrix();
 	string progress = "";
 	int n = 0;
 	int lim = PIXEL * PIXEL;
@@ -82,7 +99,6 @@ void calcWeightMatrix()
 		for (int j = 0; j < PIXEL; ++j)
 		{
 			n++;
-
 			double status = double(n * 100.0 / (lim));
 			if (progress.size() < int(status) / 5)
 			{
@@ -90,13 +106,13 @@ void calcWeightMatrix()
 			}
 			cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 			weightMtrx(i, j) = 0.0;
-			if (i == j)
+
+			for (int k = 0; k < patternSet.size(); ++k)
 			{
-				continue;
-			}
-			for (int k = 0; k < patternSet.size(); k++)
-			{
-				weightMtrx(i, j) += double(patternSet[k][i]) * double(patternSet[k][j]);
+				for (int l = 0; l < patternSet.size(); ++l)
+				{
+					weightMtrx(i, j) += double(patternSet[k][i]) * qMtrxInv(k, l) * double(patternSet[l][j]) / double(PIXEL);
+				}
 			}
 		}
 	}
@@ -139,13 +155,12 @@ void loadWeightMtrxSet()
 			vector<basic_string<char>> p = split(str, ',');
 			for (int i = 0; i < p.size(); ++i)
 			{
-				weightMtrx(rows, i) = stoi(p[i]);
+				weightMtrx(rows, i) = stod(p[i]);
 			}
 			rows++;
 		}
 		cout << endl << "Done." << endl;
 	}
-	cout << weightMtrx(0, 0) << ", " << weightMtrx(0, PIXEL - 1) << ", " << weightMtrx(PIXEL - 1, 0) << ", " << weightMtrx(PIXEL - 1, PIXEL - 1) << endl;
 }
 
 void loadPatternSet()
@@ -190,17 +205,17 @@ VectorXd updateVector(VectorXd vctr, int index)
 	//calculate input
 	double inputVal = weightMtrx.col(index).dot(vctr);
 	//ignite validation
-	int nextVal = 1;
-	if (inputVal < 0)
+	double nextVal = 1.0;
+	if (inputVal < 0.0)
 	{
-		nextVal = -1;
+		nextVal = -1.0;
 	}
 	//update index value
 	result[index] = nextVal;
 	return result;
 }
 
-void recall(VectorXd input, int time = RECALL_TIME)
+void recall(VectorXd input, ostream& out = cout, int time = RECALL_TIME)
 {
 	VectorXd result = input;
 	for (int i = 0; i < time; ++i)
@@ -209,15 +224,30 @@ void recall(VectorXd input, int time = RECALL_TIME)
 		int n = rand() % input.size();
 		result = updateVector(result, n);
 	}
-	ofstream ofs("out.csv");
-	renderNum(result,ofs);
-	ofs.close();
+	renderNum(result, out);
+	out << endl << endl;
 }
 
 int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-	recall(patternSet[2]);
+	//	testData.load();
+	ofstream ofs("test.csv");
+	for (int i = 0; i < 10; ++i)
+	{
+		VectorXd testMtrx = patternSet[i];
+		//add noise
+		for (int j = 0; j < 300; ++j)
+		{
+			int n = rand() % testMtrx.size();
+			testMtrx[n] *= -1;
+		}
+		cout << "progress: " << i << "\r" << flush;
+
+		recall(testMtrx, ofs);
+	}
+	ofs.close();
+
 	return 0;
 }

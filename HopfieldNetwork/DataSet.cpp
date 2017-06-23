@@ -50,8 +50,8 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 			for (int col = 0; col < cols; col++)
 			{
 				unsigned char temp = 0;
-				ifs.read((char*)&temp, sizeof(temp));
-				images[i][rows * row + col] = (double)temp;
+				ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+				images[i][rows * row + col] = double(temp);
 			}
 		}
 	}
