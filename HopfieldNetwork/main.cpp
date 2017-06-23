@@ -184,9 +184,40 @@ void loadPatternSet()
 	//	}
 }
 
+VectorXd updateVector(VectorXd vctr, int index)
+{
+	VectorXd result = vctr;
+	//calculate input
+	double inputVal = weightMtrx.col(index).dot(vctr);
+	//ignite validation
+	int nextVal = 1;
+	if (inputVal < 0)
+	{
+		nextVal = -1;
+	}
+	//update index value
+	result[index] = nextVal;
+	return result;
+}
+
+void recall(VectorXd input, int time = RECALL_TIME)
+{
+	VectorXd result = input;
+	for (int i = 0; i < time; ++i)
+	{
+		//		pick one
+		int n = rand() % input.size();
+		result = updateVector(result, n);
+	}
+	ofstream ofs("out.csv");
+	renderNum(result,ofs);
+	ofs.close();
+}
+
 int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
+	recall(patternSet[2]);
 	return 0;
 }
