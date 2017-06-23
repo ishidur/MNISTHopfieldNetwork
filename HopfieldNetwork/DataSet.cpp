@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "DataSet.h"
+#include <iomanip>
 
 //ƒoƒCƒg—ñ‚©‚çint‚Ö‚Ì•ÏŠ·
 int reverseInt(int i)
@@ -32,11 +33,18 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 
 	vector<VectorXd> images(number_of_images);
 	cout << magic_number << " " << number_of_images << " " << rows << " " << cols << endl;
+	cout << "fetching image data..." << endl;
+	string progress = "";
 
 	for (int i = 0; i < number_of_images; i++)
 	{
+		double status = double(i * 100.0 / (number_of_images - 1));
+		if (progress.size() < int(status) / 5)
+		{
+			progress += "#";
+		}
+		cout << "progress: " << setw(4) << setfill('0') << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		images[i] = VectorXd::Zero(PIXEL);
-
 		for (int row = 0; row < rows; row++)
 		{
 			for (int col = 0; col < cols; col++)
@@ -47,6 +55,7 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 			}
 		}
 	}
+	cout << endl << "Done." << endl;
 	return images;
 }
 
@@ -65,12 +74,22 @@ vector<double> DataSet::readLabelFile(string filename)
 
 	cout << number_of_images << endl;
 
+	cout << "fetching label data..." << endl;
+	string progress = "";
+
 	for (int i = 0; i < number_of_images; i++)
 	{
+		double status = double(i * 100.0 / (number_of_images - 1));
+		if (progress.size() < int(status) / 5)
+		{
+			progress += "#";
+		}
+		cout << "progress: " << setw(4) << setfill('0') << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		unsigned char temp = 0;
 		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
 		_label[i] = double(temp);
 	}
+	cout << endl << "Done." << endl;
 	return _label;
 }
 
