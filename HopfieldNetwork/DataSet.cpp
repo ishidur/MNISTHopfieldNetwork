@@ -13,7 +13,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<VectorXd> DataSet::readImageFile(string filename)
+vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -51,7 +51,19 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 			{
 				unsigned char temp = 0;
 				ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-				images[i][rows * row + col] = double(temp);
+				if (isInt)
+				{
+					int a = int(temp / 255 + 0.5);
+					if (a == 0)
+					{
+						a = -1;
+					}
+					images[i][rows * row + col] = double(a);
+				}
+				else
+				{
+					images[i][rows * row + col] = double(temp);
+				}
 			}
 		}
 	}

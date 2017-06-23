@@ -232,20 +232,29 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-	//	testData.load();
-	ofstream ofs("test.csv");
-	for (int i = 0; i < 10; ++i)
-	{
-		VectorXd testMtrx = patternSet[i];
-		//add noise
-		for (int j = 0; j < 300; ++j)
-		{
-			int n = rand() % testMtrx.size();
-			testMtrx[n] *= -1;
-		}
-		cout << "progress: " << i << "\r" << flush;
 
-		recall(testMtrx, ofs);
+	//	ofstream ofs("test.csv");
+	//	for (int i = 0; i < 10; ++i)
+	//	{
+	//		VectorXd testMtrx = patternSet[i];
+	//		//add noise
+	//		for (int j = 0; j < 300; ++j)
+	//		{
+	//			int n = rand() % testMtrx.size();
+	//			testMtrx[n] *= -1;
+	//		}
+	//		cout << "progress: " << i << "\r" << flush;
+	//
+	//		recall(testMtrx, ofs);
+	//	}
+	testData.load();
+
+	ofstream ofs("testData.csv");
+	for (int i = 0; i < 100; ++i)
+	{
+		cout << "progress: " << i << "\r" << flush;
+		ofs << "answer: " << testData.labels[i] << endl;
+		recall(testData.images[i], ofs);
 	}
 	ofs.close();
 
