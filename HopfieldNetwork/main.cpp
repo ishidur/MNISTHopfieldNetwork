@@ -71,7 +71,6 @@ void outMatrix(MatrixXd mtrx, ostream& out = cout)
 	}
 }
 
-//BUG: whaaaat?
 MatrixXd calcQMatrix()
 {
 	cout << "calculating q matrix..." << endl;
@@ -88,7 +87,6 @@ MatrixXd calcQMatrix()
 	return result.inverse();
 }
 
-//BUG: whaaaat?
 void calcWeightMatrix()
 {
 	cout << "calculating weight matrix..." << endl;
@@ -201,7 +199,6 @@ void loadPatternSet()
 	//	}
 }
 
-//TODO: ˆá‚¤‚©‚à
 VectorXd updateVector(VectorXd vctr, int index)
 {
 	VectorXd result = vctr;
@@ -218,7 +215,6 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-//TODO: ˆá‚¤‚©‚à
 void recall(VectorXd input, ostream& out = cout, int time = RECALL_TIME)
 {
 	VectorXd result = input;
@@ -236,11 +232,12 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-//	testData.load();
-	ofstream ofs("out.csv");
+	//	testData.load();
+	ofstream ofs("test.csv");
 	for (int i = 0; i < 10; ++i)
 	{
 		VectorXd testMtrx = patternSet[i];
+		//add noise
 		for (int j = 0; j < 300; ++j)
 		{
 			int n = rand() % testMtrx.size();
