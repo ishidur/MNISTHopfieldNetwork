@@ -32,11 +32,18 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 
 	vector<VectorXd> images(number_of_images);
 	cout << magic_number << " " << number_of_images << " " << rows << " " << cols << endl;
+	cout << "fetching image data..." << endl;
+	string progress = "";
 
 	for (int i = 0; i < number_of_images; i++)
 	{
+		double status = i / (number_of_images - 1) * 100.0;
+		if (int(status) % 10 == 9)
+		{
+			progress += "#";
+		}
+		cout << progress << "\r" << flush;
 		images[i] = VectorXd::Zero(PIXEL);
-
 		for (int row = 0; row < rows; row++)
 		{
 			for (int col = 0; col < cols; col++)
@@ -65,12 +72,22 @@ vector<double> DataSet::readLabelFile(string filename)
 
 	cout << number_of_images << endl;
 
+	cout << "fetching label data..." << endl;
+	string progress = "";
+
 	for (int i = 0; i < number_of_images; i++)
 	{
+		double status = i / (number_of_images - 1) * 100.0;
+		if (int(status) % 10 == 9)
+		{
+			progress += "#";
+		}
+		cout << progress << "\r" << flush;
 		unsigned char temp = 0;
 		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
 		_label[i] = double(temp);
 	}
+	cout << "Done." << endl;
 	return _label;
 }
 

@@ -79,6 +79,7 @@ void loadPatternSet()
 			}
 			patternSet[index] = tmpPattern;
 		}
+		cout << "Done." << endl;
 	}
 	for (int i = 0; i < 10; ++i)
 	{
