@@ -232,7 +232,7 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-int recall(VectorXd input, ostream& out = cout)
+void noiseRecall(VectorXd input, ostream& out = cout)
 {
 	VectorXd result = input;
 	for (int i = 0; i < RECALL_TIME; ++i)
@@ -256,6 +256,22 @@ int recall(VectorXd input, ostream& out = cout)
 	cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
+}
+
+int recall(VectorXd input, ostream& out = cout)
+{
+	VectorXd result = input;
+	for (int i = 0; i < RECALL_TIME; ++i)
+	{
+		//		pick one
+		int n = rand() % input.size();
+		result = updateVector(result, n);
+	}
+
+	int num;
+	double fittness;
+	tie(num, fittness) = verifyPattern(result);
+	out << "recalled: ," << num << ", fittness," << (fittness + 1.0) / 2.0 * 100.0 << ",%" << endl;
 	return num;
 }
 
@@ -276,7 +292,7 @@ int main()
 	//		}
 	//		cout << "progress: " << i << "\r" << flush;
 	//
-	//		recall(testMtrx, ofs);
+	//		noiseRecall(testMtrx, ofs);
 	//	}
 	//	ofs.close();
 	testData.load();
@@ -284,9 +300,9 @@ int main()
 	ofstream ofs("testData.csv");
 	array<int, 10> trial = {};
 	array<int, 10> correct = {};
-	for (int i = 0; i < 1000; ++i)
+	for (int i = 0; i < testData.labels.size(); ++i)
 	{
-		cout << "progress: " << i << "\r" << flush;
+		cout << "progress: " << i << "/" << testData.labels.size() << "\r" << flush;
 		int result = recall(testData.images[i], ofs);
 		trial[testData.labels[i]] += 1;
 		if (result == testData.labels[i])
@@ -297,7 +313,7 @@ int main()
 	cout << endl << "Done." << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		cout << i << "; accuracy " << double(correct[i]) / double(trial[i]) * 100.0 << "%" << endl;
+		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",%" << endl;
 	}
 	ofs.close();
 
