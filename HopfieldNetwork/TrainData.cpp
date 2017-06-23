@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TrainData.h"
+#include <iomanip>
 
 TrainData::TrainData(string _imagePath, string _labelPath)
 {
@@ -23,15 +24,16 @@ void TrainData::calcAverageNumeric()
 
 	for (int i = 0; i < images.size(); ++i)
 	{
-		double status = i / (images.size() - 1) * 100.0;
-		if (int(status) % 10 == 9)
+		double status = double(i * 100.0 / (images.size() - 1));
+		if (progress.size() < int(status) / 5)
 		{
 			progress += "#";
 		}
-		cout << progress << "\r" << flush;
+		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		_patterns[int(labels[i])] += images[i];
 		counts[int(labels[i])] += 1;
 	}
+	cout << endl << "Done." << endl;
 
 	ofstream ofs(prettyFileName);
 
@@ -40,7 +42,7 @@ void TrainData::calcAverageNumeric()
 	for (int j = 0; j < 10; ++j)
 	{
 		progress += "#";
-		cout << progress << "\r" << flush;
+		cout << "progress: " << setw(3) << setfill('0') << right << j << " " << progress << "\r" << flush;
 		if (counts[j] != 0)
 		{
 			_patterns[j] /= counts[j];

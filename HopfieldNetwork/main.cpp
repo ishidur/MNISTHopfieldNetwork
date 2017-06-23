@@ -29,7 +29,7 @@ void makePatternSet()
 {
 	TrainData trainData;
 	trainData.load();
-	cout << "data loaded!" << endl;
+	cout << "data loaded successfully!" << endl;
 	trainData.calcAverageNumeric();
 	trainData.savePatterns();
 	patternSet = trainData.patterns;
@@ -59,7 +59,7 @@ void loadPatternSet()
 	if (!ifs)
 	{
 		cout << "pattern file not found" << endl;
-		cout << "creating patttern file..." << endl;
+		cout << "create patttern file..." << endl;
 		makePatternSet();
 	}
 	else
@@ -79,7 +79,7 @@ void loadPatternSet()
 			}
 			patternSet[index] = tmpPattern;
 		}
-		cout << "Done." << endl;
+		cout << endl << "Done." << endl;
 	}
 	for (int i = 0; i < 10; ++i)
 	{
