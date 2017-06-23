@@ -15,12 +15,12 @@
 array<VectorXd, 10> patternSet;
 MatrixXd weightMtrx(PIXEL,PIXEL);
 
-std::vector<std::string> split(const std::string& str, char sep)
+vector<string> split(const string& str, char sep)
 {
-	std::vector<std::string> v;
-	std::stringstream ss(str);
-	std::string buffer;
-	while (std::getline(ss, buffer, sep))
+	vector<string> v;
+	stringstream ss(str);
+	string buffer;
+	while (getline(ss, buffer, sep))
 	{
 		v.push_back(buffer);
 	}
@@ -71,9 +71,26 @@ void outMatrix(MatrixXd mtrx, ostream& out = cout)
 	}
 }
 
+MatrixXd calcQMatrix()
+{
+	cout << "calculating q matrix..." << endl;
+	int lim = patternSet.size();
+	MatrixXd result = MatrixXd::Zero(lim, lim);
+	for (int i = 0; i < lim; ++i)
+	{
+		for (int j = 0; j < lim; ++j)
+		{
+			result(i, j) = patternSet[i].dot(patternSet[j]) / double(PIXEL);
+		}
+	}
+	cout << endl << "Done." << endl;
+	return result.inverse();
+}
+
 void calcWeightMatrix()
 {
 	cout << "calculating weight matrix..." << endl;
+	MatrixXd qMtrxInv = calcQMatrix();
 	string progress = "";
 	int n = 0;
 	int lim = PIXEL * PIXEL;
@@ -90,13 +107,13 @@ void calcWeightMatrix()
 			}
 			cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 			weightMtrx(i, j) = 0.0;
-			if (i == j)
+
+			for (int k = 0; k < patternSet.size(); ++k)
 			{
-				continue;
-			}
-			for (int k = 0; k < patternSet.size(); k++)
-			{
-				weightMtrx(i, j) += double(patternSet[k][i]) * double(patternSet[k][j]);
+				for (int l = k; l < patternSet.size(); ++l)
+				{
+					weightMtrx(i, j) += double(patternSet[k][i]) * qMtrxInv(k, l) * double(patternSet[l][j]) / double(PIXEL);
+				}
 			}
 		}
 	}
@@ -191,7 +208,7 @@ VectorXd updateVector(VectorXd vctr, int index)
 	double inputVal = weightMtrx.col(index).dot(vctr);
 	//ignite validation
 	int nextVal = 1;
-	if (inputVal < 0)
+	if (inputVal < 0.0)
 	{
 		nextVal = -1;
 	}
@@ -210,7 +227,7 @@ void recall(VectorXd input, int time = RECALL_TIME)
 		result = updateVector(result, n);
 	}
 	ofstream ofs("out.csv");
-	renderNum(result,ofs);
+	renderNum(result, ofs);
 	ofs.close();
 }
 
@@ -218,6 +235,6 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-	recall(patternSet[2]);
+	recall(patternSet[1]);
 	return 0;
 }

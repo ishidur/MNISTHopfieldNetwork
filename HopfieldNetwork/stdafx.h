@@ -12,6 +12,8 @@
 #include <array>
 
 #include "Eigen/Core"
+#include "Eigen/Dense"
+
 #include "parameters.h"
 
 using namespace std;
