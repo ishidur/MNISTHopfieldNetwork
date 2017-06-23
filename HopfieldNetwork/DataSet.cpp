@@ -43,15 +43,15 @@ vector<VectorXd> DataSet::readImageFile(string filename)
 		{
 			progress += "#";
 		}
-		cout << "progress: " << setw(4) << setfill('0') << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
+		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		images[i] = VectorXd::Zero(PIXEL);
 		for (int row = 0; row < rows; row++)
 		{
 			for (int col = 0; col < cols; col++)
 			{
 				unsigned char temp = 0;
-				ifs.read((char*)&temp, sizeof(temp));
-				images[i][rows * row + col] = (double)temp;
+				ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
+				images[i][rows * row + col] = double(temp);
 			}
 		}
 	}
@@ -84,7 +84,7 @@ vector<double> DataSet::readLabelFile(string filename)
 		{
 			progress += "#";
 		}
-		cout << "progress: " << setw(4) << setfill('0') << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
+		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		unsigned char temp = 0;
 		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
 		_label[i] = double(temp);
@@ -101,6 +101,10 @@ void DataSet::renderNumber(VectorXd data, ostream& out)
 		for (int j = 0; j < n; ++j)
 		{
 			int a = int(data[i * n + j] / 255 + 0.7);
+			if (a == 0)
+			{
+				a = -1;
+			}
 			out << a;
 			if (j < n - 1)
 			{
