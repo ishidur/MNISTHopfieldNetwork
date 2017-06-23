@@ -101,10 +101,6 @@ void DataSet::renderNumber(VectorXd data, ostream& out)
 		for (int j = 0; j < n; ++j)
 		{
 			int a = int(data[i * n + j] / 255 + 0.7);
-			if (a == 0)
-			{
-				a = -1;
-			}
 			out << a;
 			if (j < n - 1)
 			{
