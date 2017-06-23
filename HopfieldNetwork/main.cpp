@@ -203,7 +203,7 @@ tuple<int, double> verifyPattern(VectorXd input)
 {
 	array<double, 10> fittness = {};
 	double min = -1.0;
-	int num;
+	int num = 0;
 	for (int i = 0; i < patternSet.size(); ++i)
 	{
 		fittness[i] = input.dot(patternSet[i]) / double(input.size());
@@ -232,7 +232,7 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-void recall(VectorXd input, ostream& out = cout)
+int recall(VectorXd input, ostream& out = cout)
 {
 	VectorXd result = input;
 	for (int i = 0; i < RECALL_TIME; ++i)
@@ -256,6 +256,7 @@ void recall(VectorXd input, ostream& out = cout)
 	cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
+	return num;
 }
 
 int main()
@@ -263,29 +264,41 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 
-	ofstream ofs("noise.csv");
+	//	ofstream ofs("noise.csv");
+	//	for (int i = 0; i < 10; ++i)
+	//	{
+	//		VectorXd testMtrx = patternSet[i];
+	//		//add noise
+	//		for (int j = 0; j < 200; ++j)
+	//		{
+	//			int n = rand() % testMtrx.size();
+	//			testMtrx[n] *= -1;
+	//		}
+	//		cout << "progress: " << i << "\r" << flush;
+	//
+	//		recall(testMtrx, ofs);
+	//	}
+	//	ofs.close();
+	testData.load();
+
+	ofstream ofs("testData.csv");
+	array<int, 10> trial = {};
+	array<int, 10> correct = {};
+	for (int i = 0; i < 1000; ++i)
+	{
+		cout << "progress: " << i << "\r" << flush;
+		int result = recall(testData.images[i], ofs);
+		trial[testData.labels[i]] += 1;
+		if (result == testData.labels[i])
+		{
+			correct[testData.labels[i]] += 1;
+		}
+	}
+	cout << endl << "Done." << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		VectorXd testMtrx = patternSet[i];
-		//add noise
-		for (int j = 0; j < 200; ++j)
-		{
-			int n = rand() % testMtrx.size();
-			testMtrx[n] *= -1;
-		}
-		cout << "progress: " << i << "\r" << flush;
-
-		recall(testMtrx, ofs);
+		cout << i << "; accuracy " << double(correct[i]) / double(trial[i]) * 100.0 << "%" << endl;
 	}
-	//	testData.load();
-	//
-	//	ofstream ofs("testData.csv");
-	//	for (int i = 0; i < 100; ++i)
-	//	{
-	//		cout << "progress: " << i << "\r" << flush;
-	//		ofs << "answer: " << testData.labels[i] << endl;
-	//		recall(testData.images[i], ofs);
-	//	}
 	ofs.close();
 
 	return 0;
