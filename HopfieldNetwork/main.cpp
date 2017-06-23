@@ -199,6 +199,23 @@ void loadPatternSet()
 	//	}
 }
 
+tuple<int, double> verifyPattern(VectorXd input)
+{
+	array<double, 10> fittness = {};
+	double min = -1.0;
+	int num;
+	for (int i = 0; i < patternSet.size(); ++i)
+	{
+		fittness[i] = input.dot(patternSet[i]) / double(input.size());
+		if (fittness[i] > min)
+		{
+			min = fittness[i];
+			num = i;
+		}
+	}
+	return forward_as_tuple(num, fittness[num]);
+}
+
 VectorXd updateVector(VectorXd vctr, int index)
 {
 	VectorXd result = vctr;
@@ -215,15 +232,28 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-void recall(VectorXd input, ostream& out = cout, int time = RECALL_TIME)
+void recall(VectorXd input, ostream& out = cout)
 {
 	VectorXd result = input;
-	for (int i = 0; i < time; ++i)
+	for (int i = 0; i < RECALL_TIME; ++i)
 	{
+		if (i == 0)
+		{
+			out << "before:" << endl;
+
+			renderNum(result, out);
+			out << endl << endl;
+		}
 		//		pick one
 		int n = rand() % input.size();
 		result = updateVector(result, n);
 	}
+	out << "after " << RECALL_TIME << " iterations" << endl;
+
+	int num;
+	double fittness;
+	tie(num, fittness) = verifyPattern(result);
+	cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
 }
@@ -233,29 +263,29 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 
-	//	ofstream ofs("test.csv");
-	//	for (int i = 0; i < 10; ++i)
-	//	{
-	//		VectorXd testMtrx = patternSet[i];
-	//		//add noise
-	//		for (int j = 0; j < 300; ++j)
-	//		{
-	//			int n = rand() % testMtrx.size();
-	//			testMtrx[n] *= -1;
-	//		}
-	//		cout << "progress: " << i << "\r" << flush;
-	//
-	//		recall(testMtrx, ofs);
-	//	}
-	testData.load();
-
-	ofstream ofs("testData.csv");
-	for (int i = 0; i < 100; ++i)
+	ofstream ofs("noise.csv");
+	for (int i = 0; i < 10; ++i)
 	{
+		VectorXd testMtrx = patternSet[i];
+		//add noise
+		for (int j = 0; j < 200; ++j)
+		{
+			int n = rand() % testMtrx.size();
+			testMtrx[n] *= -1;
+		}
 		cout << "progress: " << i << "\r" << flush;
-		ofs << "answer: " << testData.labels[i] << endl;
-		recall(testData.images[i], ofs);
+
+		recall(testMtrx, ofs);
 	}
+	//	testData.load();
+	//
+	//	ofstream ofs("testData.csv");
+	//	for (int i = 0; i < 100; ++i)
+	//	{
+	//		cout << "progress: " << i << "\r" << flush;
+	//		ofs << "answer: " << testData.labels[i] << endl;
+	//		recall(testData.images[i], ofs);
+	//	}
 	ofs.close();
 
 	return 0;
