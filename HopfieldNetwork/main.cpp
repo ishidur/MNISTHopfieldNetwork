@@ -96,7 +96,7 @@ void calcWeightMatrix()
 			}
 			for (int k = 0; k < patternSet.size(); k++)
 			{
-				weightMtrx(i, j) += double(patternSet[k][i]) * double(patternSet[k][j]);
+				weightMtrx(i, j) += double(2.0*(1.0-patternSet[k][i])-1.0) * double(2.0*(1.0-patternSet[k][j])-1.0);
 			}
 		}
 	}
