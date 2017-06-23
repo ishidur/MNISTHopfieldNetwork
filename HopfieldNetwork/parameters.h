@@ -7,3 +7,5 @@
 #define TEST_IMAGE_PATH "./MNISTData/t10k-images-idx3-ubyte/t10k-images.idx3-ubyte"
 #define TEST_LABEL_PATH "./MNISTData/t10k-labels-idx1-ubyte/t10k-labels.idx1-ubyte"
 #define PATTERN_PATH "./rawPatternData.csv"
+#define WEIGHT_MATRIX_FILENAME "weightMatrixData.csv"
+#define WEIGHT_MATRIX_PATH "./weightMatrixData.csv"
