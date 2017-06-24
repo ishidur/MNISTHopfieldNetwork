@@ -258,7 +258,7 @@ void noiseRecall(VectorXd input, ostream& out = cout)
 	out << endl << endl;
 }
 
-int recall(VectorXd input, ostream& out = cout)
+int recallTest(VectorXd input, int ans, ostream& out = cout)
 {
 	VectorXd result = input;
 	for (int i = 0; i < RECALL_TIME; ++i)
@@ -271,30 +271,31 @@ int recall(VectorXd input, ostream& out = cout)
 	int num;
 	double fittness;
 	tie(num, fittness) = verifyPattern(result);
-	out << "recalled: ," << num << ", fittness," << (fittness + 1.0) / 2.0 * 100.0 << ",%" << endl;
+	out << "answer: ," << ans << ",recalled: ," << num << ", fittness," << (fittness + 1.0) / 2.0 * 100.0 << ",%" << endl;
 	return num;
 }
 
-int main()
+void runNoiseRecallTest()
 {
-	loadPatternSet();
-	loadWeightMtrxSet();
+	ofstream ofs("noise.csv");
+	for (int i = 0; i < 10; ++i)
+	{
+		VectorXd testMtrx = patternSet[i];
+		//add noise
+		for (int j = 0; j < 200; ++j)
+		{
+			int n = rand() % testMtrx.size();
+			testMtrx[n] *= -1;
+		}
+		cout << "progress: " << i << "\r" << flush;
 
-	//	ofstream ofs("noise.csv");
-	//	for (int i = 0; i < 10; ++i)
-	//	{
-	//		VectorXd testMtrx = patternSet[i];
-	//		//add noise
-	//		for (int j = 0; j < 200; ++j)
-	//		{
-	//			int n = rand() % testMtrx.size();
-	//			testMtrx[n] *= -1;
-	//		}
-	//		cout << "progress: " << i << "\r" << flush;
-	//
-	//		noiseRecall(testMtrx, ofs);
-	//	}
-	//	ofs.close();
+		noiseRecall(testMtrx, ofs);
+	}
+	ofs.close();
+}
+
+void runTest()
+{
 	testData.load();
 
 	ofstream ofs("testData.csv");
@@ -303,7 +304,7 @@ int main()
 	for (int i = 0; i < testData.labels.size(); ++i)
 	{
 		cout << "progress: " << i << "/" << testData.labels.size() << "\r" << flush;
-		int result = recall(testData.images[i], ofs);
+		int result = recallTest(testData.images[i], testData.labels[i], ofs);
 		trial[testData.labels[i]] += 1;
 		if (result == testData.labels[i])
 		{
@@ -311,11 +312,19 @@ int main()
 		}
 	}
 	cout << endl << "Done." << endl;
+	ofs << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",%" << endl;
+		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
 	}
 	ofs.close();
+}
 
+int main()
+{
+	loadPatternSet();
+	loadWeightMtrxSet();
+	//	runNoiseRecallTest();
+	runTest();
 	return 0;
 }
