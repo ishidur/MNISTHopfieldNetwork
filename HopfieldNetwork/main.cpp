@@ -297,13 +297,23 @@ void runNoiseRecallTest()
 void runTest()
 {
 	testData.load();
-
-	ofstream ofs("testData.csv");
+	ofstream ofs("testResult.csv");
 	array<int, 10> trial = {};
 	array<int, 10> correct = {};
+	float progress = 0.0;
 	for (int i = 0; i < testData.labels.size(); ++i)
 	{
-		cout << "progress: " << i << "/" << testData.labels.size() << "\r" << flush;
+		int barWidth = 70;
+		progress = i / testData.labels.size();
+		std::cout << "[";
+		int pos = barWidth * progress;
+		for (int i = 0; i < barWidth; ++i)
+		{
+			if (i < pos) cout << "=";
+			else if (i == pos) cout << ">";
+			else cout << " ";
+		}
+		cout << "] " << progress * 100.0 << " %\r" << flush;
 		int result = recallTest(testData.images[i], testData.labels[i], ofs);
 		trial[testData.labels[i]] += 1;
 		if (result == testData.labels[i])
