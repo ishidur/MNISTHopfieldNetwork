@@ -9,6 +9,6 @@ TestData::TestData(string _imagePath, string _labelPath)
 
 void TestData::load()
 {
-	images = readImageFile(imagePath);
+	images = readImageFile(imagePath, true);
 	labels = readLabelFile(labelPath);
 }

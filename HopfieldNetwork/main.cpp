@@ -199,6 +199,23 @@ void loadPatternSet()
 	//	}
 }
 
+tuple<int, double> verifyPattern(VectorXd input)
+{
+	array<double, 10> fittness = {};
+	double min = -1.0;
+	int num = 0;
+	for (int i = 0; i < patternSet.size(); ++i)
+	{
+		fittness[i] = input.dot(patternSet[i]) / double(input.size());
+		if (fittness[i] > min)
+		{
+			min = fittness[i];
+			num = i;
+		}
+	}
+	return forward_as_tuple(num, fittness[num]);
+}
+
 VectorXd updateVector(VectorXd vctr, int index)
 {
 	VectorXd result = vctr;
@@ -215,39 +232,99 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-void recall(VectorXd input, ostream& out = cout, int time = RECALL_TIME)
+void noiseRecall(VectorXd input, ostream& out = cout)
 {
 	VectorXd result = input;
-	for (int i = 0; i < time; ++i)
+	for (int i = 0; i < RECALL_TIME; ++i)
+	{
+		if (i == 0)
+		{
+			out << "before:" << endl;
+
+			renderNum(result, out);
+			out << endl << endl;
+		}
+		//		pick one
+		int n = rand() % input.size();
+		result = updateVector(result, n);
+	}
+	out << "after " << RECALL_TIME << " iterations" << endl;
+
+	int num;
+	double fittness;
+	tie(num, fittness) = verifyPattern(result);
+	cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
+	renderNum(result, out);
+	out << endl << endl;
+}
+
+int recallTest(VectorXd input, int ans, ostream& out = cout)
+{
+	VectorXd result = input;
+	for (int i = 0; i < RECALL_TIME; ++i)
 	{
 		//		pick one
 		int n = rand() % input.size();
 		result = updateVector(result, n);
 	}
-	renderNum(result, out);
-	out << endl << endl;
+
+	int num;
+	double fittness;
+	tie(num, fittness) = verifyPattern(result);
+	out << "answer: ," << ans << ",recalled: ," << num << ", fittness," << (fittness + 1.0) / 2.0 * 100.0 << ",%" << endl;
+	return num;
 }
 
-int main()
+void runNoiseRecallTest()
 {
-	loadPatternSet();
-	loadWeightMtrxSet();
-	//	testData.load();
-	ofstream ofs("test.csv");
+	ofstream ofs("noise.csv");
 	for (int i = 0; i < 10; ++i)
 	{
 		VectorXd testMtrx = patternSet[i];
 		//add noise
-		for (int j = 0; j < 300; ++j)
+		for (int j = 0; j < 200; ++j)
 		{
 			int n = rand() % testMtrx.size();
 			testMtrx[n] *= -1;
 		}
 		cout << "progress: " << i << "\r" << flush;
 
-		recall(testMtrx, ofs);
+		noiseRecall(testMtrx, ofs);
 	}
 	ofs.close();
+}
 
+void runTest()
+{
+	testData.load();
+
+	ofstream ofs("testData.csv");
+	array<int, 10> trial = {};
+	array<int, 10> correct = {};
+	for (int i = 0; i < testData.labels.size(); ++i)
+	{
+		cout << "progress: " << i << "/" << testData.labels.size() << "\r" << flush;
+		int result = recallTest(testData.images[i], testData.labels[i], ofs);
+		trial[testData.labels[i]] += 1;
+		if (result == testData.labels[i])
+		{
+			correct[testData.labels[i]] += 1;
+		}
+	}
+	cout << endl << "Done." << endl;
+	ofs << endl;
+	for (int i = 0; i < 10; ++i)
+	{
+		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
+	}
+	ofs.close();
+}
+
+int main()
+{
+	loadPatternSet();
+	loadWeightMtrxSet();
+	//	runNoiseRecallTest();
+	runTest();
 	return 0;
 }
