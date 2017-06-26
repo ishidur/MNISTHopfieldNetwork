@@ -292,19 +292,6 @@ void runNoiseRecallTest()
 		}
 		noiseRecall(testMtrx, ofs);
 	}
-	//	Concurrency::parallel_for(0, 10, 1, [&ofs](int i)
-	//                          {
-	//	                          VectorXd testMtrx = patternSet[i];
-	//	                          //add noise
-	//	                          for (int j = 0; j < 200; ++j)
-	//	                          {
-	//		                          int n = rand() % testMtrx.size();
-	//		                          testMtrx[n] *= -1;
-	//	                          }
-	//	                          std::cout << "progress: " << i << "\r" << flush;
-	//
-	//	                          noiseRecall(testMtrx, ofs);
-	//                          });
 	ofs.close();
 }
 
@@ -321,19 +308,7 @@ void runTest()
 
 	Concurrency::parallel_for(0, n, 1, [&sum, &ofs, &trial, &correct](int i)
                           {
-	                          //	                          int barWidth = 70;
-	                          //	                          progress = i / testData.labels.size();
-	                          //	                          std::cout << "[";
-	                          //	                          int pos = barWidth * progress;
-	                          //	                          for (int j = 0; j < barWidth; ++j)
-	                          //	                          {
-	                          //		                          if (j < pos) cout << "=";
-	                          //		                          else if (j == pos) std::cout << ">";
-	                          //		                          else std::cout << " ";
-	                          //	                          }
-	                          //	                          std::cout << "] " << progress * 100.0 << " %\r" << flush;
-	                          std::cout << "progress: " << sum<<" / "<< testData.labels.size() << " \r" << flush;
-
+	                          std::cout << "progress: " << sum << " / " << testData.labels.size() << " \r" << flush;
 	                          int result = recallTest(testData.images[i], testData.labels[i], ofs);
 	                          trial[testData.labels[i]] += 1;
 	                          if (result == testData.labels[i])
