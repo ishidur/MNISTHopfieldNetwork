@@ -11,6 +11,9 @@
 #include <sstream>
 #include <iomanip>
 
+#include <ppl.h>
+#include <time.h>     // for clock()
+
 TestData testData;
 array<VectorXd, 10> patternSet;
 MatrixXd weightMtrx(PIXEL,PIXEL);
@@ -300,17 +303,17 @@ void runTest()
 	ofstream ofs("testResult.csv");
 	array<int, 10> trial = {};
 	array<int, 10> correct = {};
-	float progress = 0.0;
+	float progress;
 	for (int i = 0; i < testData.labels.size(); ++i)
 	{
 		int barWidth = 70;
 		progress = i / testData.labels.size();
-		std::cout << "[";
+		cout << "[";
 		int pos = barWidth * progress;
-		for (int i = 0; i < barWidth; ++i)
+		for (int j = 0; j < barWidth; ++j)
 		{
-			if (i < pos) cout << "=";
-			else if (i == pos) cout << ">";
+			if (j < pos) cout << "=";
+			else if (j == pos) cout << ">";
 			else cout << " ";
 		}
 		cout << "] " << progress * 100.0 << " %\r" << flush;
@@ -334,7 +337,10 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-	//	runNoiseRecallTest();
-	runTest();
+	clock_t start = clock(); // スタート時間
+	runNoiseRecallTest();
+	//	runTest();
+	clock_t end = clock(); // 終了時間
+	cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
 }
