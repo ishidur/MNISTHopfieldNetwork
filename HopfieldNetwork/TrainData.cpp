@@ -43,11 +43,12 @@ void TrainData::calcAverageNumeric()
 	{
 		progress += "#";
 		cout << "progress: " << setw(3) << right << j << " " << progress << "\r" << flush;
+
 		if (counts[j] != 0)
 		{
 			_patterns[j] /= counts[j];
 		}
-		renderNumber(_patterns[j], ofs);
+		_patterns[j] = renderNumber(_patterns[j], ofs);
 		ofs << endl;
 	}
 	ofs.close();
@@ -61,11 +62,7 @@ VectorXd outputPattern(VectorXd v, ostream& out = cout)
 	VectorXd o(v.size());
 	for (int i = 0; i < n; ++i)
 	{
-		int a = int(v[i] / 255 + 0.7);
-		if (a == 0)
-		{
-			a = -1;
-		}
+		double a = double(v[i]);
 		out << a;
 		if (i < n - 1)
 		{

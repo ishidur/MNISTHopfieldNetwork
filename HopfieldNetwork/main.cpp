@@ -47,7 +47,7 @@ void renderNum(VectorXd data, ostream& out = std::cout)
 	{
 		for (int j = 0; j < n; ++j)
 		{
-			int a = int(data[i * n + j]);
+			double a = double(data[i * n + j]);
 			out << a;
 			if (j < n - 1)
 			{
@@ -189,7 +189,7 @@ void loadPatternSet()
 			VectorXd tmpPattern = VectorXd::Zero(p.size());
 			for (int i = 0; i < p.size(); ++i)
 			{
-				tmpPattern[i] = stoi(p[i]);
+				tmpPattern[i] = stod(p[i]);
 			}
 			patternSet[index] = tmpPattern;
 		}
@@ -219,17 +219,28 @@ tuple<int, double> verifyPattern(VectorXd input)
 	return forward_as_tuple(num, fittness[num]);
 }
 
+double activationFunc(double input)
+{
+	double result = input * ACTIVATION_CONST;
+	if (result > 1.0)
+	{
+		result = 1.0;
+	}
+	else if (result < -1.0)
+	{
+		result = -1.0;
+	}
+	//	double result = 2.0 / (1.0 + exp(-input)) - 1.0;
+	return result;
+}
+
 VectorXd updateVector(VectorXd vctr, int index)
 {
 	VectorXd result = vctr;
 	//calculate input
 	double inputVal = weightMtrx.col(index).dot(vctr);
 	//ignite validation
-	double nextVal = 1.0;
-	if (inputVal < 0.0)
-	{
-		nextVal = -1.0;
-	}
+	double nextVal = activationFunc(inputVal);
 	//update index value
 	result[index] = nextVal;
 	return result;
@@ -253,10 +264,21 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
 
-	int num;
-	double fittness;
-	tie(num, fittness) = verifyPattern(result);
-	std::cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
+	array<double, 10> fittness = {};
+	double min = -1.0;
+	int num = 0;
+	for (int i = 0; i < patternSet.size(); ++i)
+	{
+		fittness[i] = result.dot(patternSet[i]) / double(result.size());
+		out << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
+		std::cout << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
+		if (fittness[i] > min)
+		{
+			min = fittness[i];
+			num = i;
+		}
+	}
+	std::cout << "recalled: " << num << ", fittness" << (fittness[num] + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
 }
@@ -332,8 +354,8 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 	clock_t start = clock();
-	//	runNoiseRecallTest();
-	runTest();
+	runNoiseRecallTest();
+	//	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
