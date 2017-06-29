@@ -270,8 +270,7 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	for (int i = 0; i < patternSet.size(); ++i)
 	{
 		fittness[i] = result.dot(patternSet[i]) / double(result.size());
-		out << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
-		std::cout << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
+		out <<"'"<< i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		if (fittness[i] > min)
 		{
 			min = fittness[i];

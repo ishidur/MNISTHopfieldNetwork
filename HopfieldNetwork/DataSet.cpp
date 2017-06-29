@@ -63,7 +63,7 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isBipolar)
 				else
 				{
 					double a = double(temp / 255.0);
-					images[i][rows * row + col] = double(temp);
+					images[i][rows * row + col] = double(a);
 				}
 			}
 		}
