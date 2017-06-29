@@ -11,3 +11,4 @@
 #define PATTERN_PATH "./rawPatternData.csv"
 #define WEIGHT_MATRIX_FILENAME "weightMatrixData.csv"
 #define WEIGHT_MATRIX_PATH "./weightMatrixData.csv"
+#define VALIDATION_DATA_PATH "./validationPatternData.csv"

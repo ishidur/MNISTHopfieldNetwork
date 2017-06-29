@@ -16,6 +16,7 @@
 
 TestData testData;
 array<VectorXd, 10> patternSet;
+array<VectorXd, 10> validationSet;
 MatrixXd weightMtrx(PIXEL,PIXEL);
 
 vector<string> split(const string& str, char sep)
@@ -38,6 +39,29 @@ void makePatternSet()
 	trainData.calcAverageNumeric();
 	trainData.savePatterns();
 	patternSet = trainData.patterns;
+}
+
+void loadVaildationPatternSet()
+{
+	ifstream ifs(VALIDATION_DATA_PATH);
+	std::cout << "loading from validation file" << endl;
+	//csvファイルを1行ずつ読み込む
+	string str;
+	while (getline(ifs, str))
+	{
+		vector<basic_string<char>> p = split(str, ',');
+		int index = stod(p[0]);
+		p.erase(p.begin());
+		std::cout << index << "; " << p.size() << " pixels" << endl;
+		VectorXd tmpPattern = VectorXd::Zero(p.size());
+		for (int i = 0; i < p.size(); ++i)
+		{
+			tmpPattern[i] = stod(p[i]);
+		}
+		validationSet[index] = tmpPattern;
+	}
+	std::cout << "Done." << endl;
+	ifs.close();
 }
 
 void renderNum(VectorXd data, ostream& out = std::cout)
@@ -163,6 +187,7 @@ void loadWeightMtrxSet()
 			rows++;
 		}
 		std::cout << endl << "Done." << endl;
+		ifs.close();
 	}
 }
 
@@ -183,7 +208,7 @@ void loadPatternSet()
 		while (getline(ifs, str))
 		{
 			vector<basic_string<char>> p = split(str, ',');
-			int index = stoi(p[0]);
+			int index = stod(p[0]);
 			p.erase(p.begin());
 			std::cout << index << "; " << p.size() << " pixels" << endl;
 			VectorXd tmpPattern = VectorXd::Zero(p.size());
@@ -194,6 +219,7 @@ void loadPatternSet()
 			patternSet[index] = tmpPattern;
 		}
 		std::cout << "Done." << endl;
+		ifs.close();
 	}
 	//	for (int i = 0; i < 10; ++i)
 	//	{
@@ -270,7 +296,7 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	for (int i = 0; i < patternSet.size(); ++i)
 	{
 		fittness[i] = result.dot(patternSet[i]) / double(result.size());
-		out <<"'"<< i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
+		out << "'" << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
@@ -352,6 +378,7 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
+//	loadVaildationPatternSet();
 	clock_t start = clock();
 	runNoiseRecallTest();
 	//	runTest();
