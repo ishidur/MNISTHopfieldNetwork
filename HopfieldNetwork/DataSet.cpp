@@ -63,6 +63,10 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isBipolar)
 				else
 				{
 					double a = double(temp / 255.0);
+					if (a == 0.0)
+					{
+						a = -1.0;
+					}
 					images[i][rows * row + col] = double(a);
 				}
 			}
@@ -106,7 +110,7 @@ vector<double> DataSet::readLabelFile(string filename)
 	return _label;
 }
 
-VectorXd DataSet::renderNumber(VectorXd data, ostream& out)
+void DataSet::renderNumber(VectorXd data, ostream& out)
 {
 	int n = int(sqrt(data.size()));
 	for (int i = 0; i < n; ++i)
@@ -114,11 +118,6 @@ VectorXd DataSet::renderNumber(VectorXd data, ostream& out)
 		for (int j = 0; j < n; ++j)
 		{
 			double a = double(data[i * n + j]);
-			if (a == 0.0)
-			{
-				a = -1.0;
-				data[i * n + j] = a;
-			}
 			out << a;
 			if (j < n - 1)
 			{
@@ -127,5 +126,4 @@ VectorXd DataSet::renderNumber(VectorXd data, ostream& out)
 		}
 		out << endl;
 	}
-	return data;
 }

@@ -48,7 +48,7 @@ void TrainData::calcAverageNumeric()
 		{
 			_patterns[j] /= counts[j];
 		}
-		_patterns[j] = renderNumber(_patterns[j], ofs);
+		renderNumber(_patterns[j], ofs);
 		ofs << endl;
 	}
 	ofs.close();

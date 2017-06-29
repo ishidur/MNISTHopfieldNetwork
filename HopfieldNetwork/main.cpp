@@ -233,9 +233,9 @@ tuple<int, double> verifyPattern(VectorXd input)
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
-	for (int i = 0; i < patternSet.size(); ++i)
+	for (int i = 0; i < validationSet.size(); ++i)
 	{
-		fittness[i] = input.dot(patternSet[i]) / double(input.size());
+		fittness[i] = input.dot(validationSet[i]) / double(input.size());
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
@@ -293,9 +293,9 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
-	for (int i = 0; i < patternSet.size(); ++i)
+	for (int i = 0; i < validationSet.size(); ++i)
 	{
-		fittness[i] = result.dot(patternSet[i]) / double(result.size());
+		fittness[i] = result.dot(validationSet[i]) / double(result.size());
 		out << "'" << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		if (fittness[i] > min)
 		{
@@ -317,7 +317,6 @@ int recallTest(VectorXd input, int ans, ostream& out = std::cout)
 		int n = rand() % input.size();
 		result = updateVector(result, n);
 	}
-
 	int num;
 	double fittness;
 	tie(num, fittness) = verifyPattern(result);
@@ -378,10 +377,10 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-//	loadVaildationPatternSet();
+	loadVaildationPatternSet();
 	clock_t start = clock();
-	runNoiseRecallTest();
-	//	runTest();
+	//	runNoiseRecallTest();
+	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
