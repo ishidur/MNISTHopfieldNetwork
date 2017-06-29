@@ -296,7 +296,6 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	for (int i = 0; i < validationSet.size(); ++i)
 	{
 		fittness[i] = result.dot(validationSet[i]) / double(result.size());
-		out << "'" << i << ", fittness," << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
@@ -379,8 +378,8 @@ int main()
 	loadWeightMtrxSet();
 	loadVaildationPatternSet();
 	clock_t start = clock();
-	//	runNoiseRecallTest();
-	runTest();
+	runNoiseRecallTest();
+	//	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
