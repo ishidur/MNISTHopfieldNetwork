@@ -361,19 +361,19 @@ void runTest()
 	ofs << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
+		ofs << "accuracy," << i << ",%," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
 	}
 	ofs.close();
 }
 
 int main()
 {
+	clock_t start = clock();
 	loadPatternSet();
 	loadWeightMtrxSet();
 	loadVaildationPatternSet();
-	clock_t start = clock();
-	runNoiseRecallTest();
-	//	runTest();
+	//	runNoiseRecallTest();
+	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
