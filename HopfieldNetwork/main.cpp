@@ -315,7 +315,7 @@ void runTest()
 	ofs << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
+		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",%,correct," << correct[i] << ",trial," << trial[i] << endl;
 	}
 	ofs.close();
 }
@@ -324,7 +324,7 @@ int main()
 {
 	loadPatternSet();
 	loadWeightMtrxSet();
-	//	runNoiseRecallTest();
-	runTest();
+	runNoiseRecallTest();
+	//	runTest();
 	return 0;
 }
