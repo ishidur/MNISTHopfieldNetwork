@@ -224,12 +224,14 @@ void loadPatternSet()
 
 tuple<int, double> verifyPattern(VectorXd input)
 {
+	//	auto answerSet = patternSet;
+	auto answerSet = validationSet;
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
-	for (int i = 0; i < validationSet.size(); ++i)
+	for (int i = 0; i < answerSet.size(); ++i)
 	{
-		fittness[i] = input.dot(validationSet[i]) / double(input.size());
+		fittness[i] = input.dot(answerSet[i]) / double(input.size());
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
@@ -241,16 +243,16 @@ tuple<int, double> verifyPattern(VectorXd input)
 
 double activationFunc(double input)
 {
-	double result = input * ACTIVATION_CONST;
-	if (result > 1.0)
-	{
-		result = 1.0;
-	}
-	else if (result < -1.0)
-	{
-		result = -1.0;
-	}
-	//	double result = 2.0 / (1.0 + exp(-input)) - 1.0;
+	//	double result = input * ACTIVATION_CONST;
+	//	if (result > 1.0)
+	//	{
+	//		result = 1.0;
+	//	}
+	//	else if (result < -1.0)
+	//	{
+	//		result = -1.0;
+	//	}
+	double result = tanh(ACTIVATION_CONST * input);
 	return result;
 }
 
@@ -287,16 +289,22 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
-	for (int i = 0; i < validationSet.size(); ++i)
+	//	auto answerSet = patternSet;
+	auto answerSet = validationSet;
+	for (int i = 0; i < answerSet.size(); ++i)
 	{
-		fittness[i] = result.dot(validationSet[i]) / double(result.size());
+		fittness[i] = result.dot(answerSet[i]) / double(result.size());
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
 			num = i;
 		}
+		std::cout << "recalled: " << i << ", fittness" << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 	}
+	std::cout << endl;
 	std::cout << "recalled: " << num << ", fittness" << (fittness[num] + 1.0) / 2.0 * 100.0 << "%" << endl;
+	std::cout << endl;
+
 	renderNum(result, out);
 	out << endl << endl;
 }
@@ -361,7 +369,7 @@ void runTest()
 	ofs << endl;
 	for (int i = 0; i < 10; ++i)
 	{
-		ofs << "accuracy," << i << ",%," << double(correct[i]) / double(trial[i]) * 100.0 << ",correct," << correct[i] << ",trial," << trial[i] << endl;
+		ofs << "accuracy," << i << "," << double(correct[i]) / double(trial[i]) * 100.0 << ",%,correct," << correct[i] << ",trial," << trial[i] << endl;
 	}
 	ofs.close();
 }
