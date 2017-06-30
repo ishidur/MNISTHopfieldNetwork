@@ -222,18 +222,24 @@ void loadPatternSet()
 	//	}
 }
 
-tuple<int, double> verifyPattern(VectorXd input)
+tuple<int, double> verifyPattern(VectorXd input, bool output = false)
 {
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
-	for (int i = 0; i < validationSet.size(); ++i)
+	array<VectorXd, 10> answerSet = validationSet;
+	//	array<VectorXd, 10> answerSet = patternSet;
+	for (int i = 0; i < answerSet.size(); ++i)
 	{
-		fittness[i] = input.dot(validationSet[i]) / double(input.size());
+		fittness[i] = input.dot(answerSet[i]) / double(input.size());
 		if (fittness[i] > min)
 		{
 			min = fittness[i];
 			num = i;
+		}
+		if (output)
+		{
+			std::cout << i << ", fittness" << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		}
 	}
 	return forward_as_tuple(num, fittness[num]);
@@ -284,19 +290,10 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
 
-	array<double, 10> fittness = {};
-	double min = -1.0;
-	int num = 0;
-	for (int i = 0; i < validationSet.size(); ++i)
-	{
-		fittness[i] = result.dot(validationSet[i]) / double(result.size());
-		if (fittness[i] > min)
-		{
-			min = fittness[i];
-			num = i;
-		}
-	}
-	std::cout << "recalled: " << num << ", fittness" << (fittness[num] + 1.0) / 2.0 * 100.0 << "%" << endl;
+	double fittness;
+	int num;
+	tie(num, fittness) = verifyPattern(result, true);
+	std::cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
 }
