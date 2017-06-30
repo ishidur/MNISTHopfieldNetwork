@@ -295,12 +295,7 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 		result = updateVector(result, n);
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
-<<<<<<< HEAD
-	double fittness;
-=======
-
 	double error;
->>>>>>> 484ab06... use mse
 	int num;
 	tie(num, error) = verifyPattern(result, true);
 	std::cout << "recalled: " << num << ", error " << scientific << setprecision(3) << error << endl;
@@ -379,8 +374,8 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 	loadVaildationPatternSet();
-	runNoiseRecallTest();
-	//	runTest();
+	//	runNoiseRecallTest();
+	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
