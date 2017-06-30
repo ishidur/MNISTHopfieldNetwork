@@ -224,25 +224,31 @@ void loadPatternSet()
 
 tuple<int, double> verifyPattern(VectorXd input, bool output = false)
 {
-	array<double, 10> fittness = {};
-	double min = -1.0;
-	int num = 0;
-	array<VectorXd, 10> answerSet = validationSet;
-	//	array<VectorXd, 10> answerSet = patternSet;
+	array<double, 10> error = {};
+	double min;
+	int num;
+	//	array<VectorXd, 10> answerSet = validationSet;
+	array<VectorXd, 10> answerSet = patternSet;
 	for (int i = 0; i < answerSet.size(); ++i)
 	{
-		fittness[i] = input.dot(answerSet[i]) / double(input.size());
-		if (fittness[i] > min)
+		error[i] = 0.0;
+
+		for (int j = 0; j < input.size(); ++j)
 		{
-			min = fittness[i];
+			error[i] += (answerSet[i][j] - input[j]) * (answerSet[i][j] - input[j]);
+		}
+		error[i] /= double(input.size());
+		if (i == 0 || error[i] < min)
+		{
+			min = error[i];
 			num = i;
 		}
 		if (output)
 		{
-			std::cout << i << ", fittness" << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
+			std::cout << i << ", error " << scientific << setprecision(2) << error[i] << endl;
 		}
 	}
-	return forward_as_tuple(num, fittness[num]);
+	return forward_as_tuple(num, error[num]);
 }
 
 double activationFunc(double input)
@@ -290,10 +296,10 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
 
-	double fittness;
+	double error;
 	int num;
-	tie(num, fittness) = verifyPattern(result, true);
-	std::cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
+	tie(num, error) = verifyPattern(result, true);
+	std::cout << "recalled: " << num << ", error " << scientific << setprecision(3) << error << endl;
 	renderNum(result, out);
 	out << endl << endl;
 }
@@ -308,9 +314,9 @@ int recallTest(VectorXd input, int ans, ostream& out = std::cout)
 		result = updateVector(result, n);
 	}
 	int num;
-	double fittness;
-	tie(num, fittness) = verifyPattern(result);
-	out << "answer: ," << ans << ",recalled: ," << num << ", fittness," << (fittness + 1.0) / 2.0 * 100.0 << ",%" << endl;
+	double error;
+	tie(num, error) = verifyPattern(result);
+	out << "answer: ," << ans << ",recalled: ," << num << ", error," << scientific << setprecision(3) << error << endl;
 	return num;
 }
 
@@ -369,8 +375,8 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 	loadVaildationPatternSet();
-	//	runNoiseRecallTest();
-	runTest();
+	runNoiseRecallTest();
+	//	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
