@@ -222,13 +222,13 @@ void loadPatternSet()
 	//	}
 }
 
-tuple<int, double> verifyPattern(VectorXd input)
+tuple<int, double> verifyPattern(VectorXd input, bool output = false)
 {
-	//	auto answerSet = patternSet;
-	auto answerSet = validationSet;
 	array<double, 10> fittness = {};
 	double min = -1.0;
 	int num = 0;
+	array<VectorXd, 10> answerSet = validationSet;
+	//	array<VectorXd, 10> answerSet = patternSet;
 	for (int i = 0; i < answerSet.size(); ++i)
 	{
 		fittness[i] = input.dot(answerSet[i]) / double(input.size());
@@ -236,6 +236,10 @@ tuple<int, double> verifyPattern(VectorXd input)
 		{
 			min = fittness[i];
 			num = i;
+		}
+		if (output)
+		{
+			std::cout << i << ", fittness" << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
 		}
 	}
 	return forward_as_tuple(num, fittness[num]);
@@ -285,26 +289,10 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 		result = updateVector(result, n);
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
-
-	array<double, 10> fittness = {};
-	double min = -1.0;
-	int num = 0;
-	//	auto answerSet = patternSet;
-	auto answerSet = validationSet;
-	for (int i = 0; i < answerSet.size(); ++i)
-	{
-		fittness[i] = result.dot(answerSet[i]) / double(result.size());
-		if (fittness[i] > min)
-		{
-			min = fittness[i];
-			num = i;
-		}
-		std::cout << "recalled: " << i << ", fittness" << (fittness[i] + 1.0) / 2.0 * 100.0 << "%" << endl;
-	}
-	std::cout << endl;
-	std::cout << "recalled: " << num << ", fittness" << (fittness[num] + 1.0) / 2.0 * 100.0 << "%" << endl;
-	std::cout << endl;
-
+	double fittness;
+	int num;
+	tie(num, fittness) = verifyPattern(result, true);
+	std::cout << "recalled: " << num << ", fittness" << (fittness + 1.0) / 2.0 * 100.0 << "%" << endl;
 	renderNum(result, out);
 	out << endl << endl;
 }
@@ -380,8 +368,8 @@ int main()
 	loadPatternSet();
 	loadWeightMtrxSet();
 	loadVaildationPatternSet();
-	//	runNoiseRecallTest();
-	runTest();
+	runNoiseRecallTest();
+	//	runTest();
 	clock_t end = clock();
 	std::cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
