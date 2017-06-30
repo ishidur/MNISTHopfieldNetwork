@@ -118,31 +118,25 @@ void calcWeightMatrix()
 {
 	std::cout << "calculating weight matrix..." << endl;
 	MatrixXd qMtrxInv = calcQMatrix();
-	string progress = "";
 	int n = 0;
 	int lim = PIXEL * PIXEL;
-	for (int i = 0; i < PIXEL; ++i)
-	{
-		for (int j = 0; j < PIXEL; ++j)
-		{
-			n++;
-			double status = double(n * 100.0 / (lim));
-			if (progress.size() < int(status) / 5)
-			{
-				progress += "#";
-			}
-			std::cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
-			weightMtrx(i, j) = 0.0;
-
-			for (int k = 0; k < patternSet.size(); ++k)
-			{
-				for (int l = 0; l < patternSet.size(); ++l)
-				{
-					weightMtrx(i, j) += double(patternSet[k][i]) * qMtrxInv(k, l) * double(patternSet[l][j]) / double(PIXEL);
-				}
-			}
-		}
-	}
+	Concurrency::parallel_for(0, PIXEL, 1, [&n, &lim, &qMtrxInv](int i)
+                          {
+	                          for (int j = 0; j < PIXEL; ++j)
+	                          {
+		                          n++;
+		                          double status = double(n * 100.0 / (lim - 1));
+		                          std::cout << fixed << setprecision(1) << status << "%" << "\r" << flush;
+		                          weightMtrx(i, j) = 0.0;
+		                          for (int k = 0; k < patternSet.size(); ++k)
+		                          {
+			                          for (int l = 0; l < patternSet.size(); ++l)
+			                          {
+				                          weightMtrx(i, j) += double(patternSet[k][i]) * qMtrxInv(k, l) * double(patternSet[l][j]) / double(PIXEL);
+			                          }
+		                          }
+	                          }
+                          });
 	std::cout << endl << "Done." << endl;
 	ofstream ofs(WEIGHT_MATRIX_FILENAME);
 	outMatrix(weightMtrx, ofs);
