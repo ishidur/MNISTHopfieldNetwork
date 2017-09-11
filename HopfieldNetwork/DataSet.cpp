@@ -13,7 +13,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<VectorXd> DataSet::readImageFile(string filename, bool isBipolar)
+vector<VectorXd> DataSet::readImageFile(string filename, bool isTest)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -51,12 +51,16 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isBipolar)
 			{
 				unsigned char temp = 0;
 				ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-				if (isBipolar)
+				if (isTest)
 				{
 					double a = double(temp / 255.0);
 					if (a == 0.0)
 					{
-						a = -1.0;
+						a = -0.999;
+					}
+					else if (a == 1.0)
+					{
+						a = 0.999;
 					}
 					images[i][rows * row + col] = double(a);
 				}
@@ -65,7 +69,11 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isBipolar)
 					double a = double(temp / 255.0);
 					if (a == 0.0)
 					{
-						a = -1.0;
+						a = -0.999;
+					}
+					else if (a == 1.0)
+					{
+						a = 0.999;
 					}
 					images[i][rows * row + col] = double(a);
 				}

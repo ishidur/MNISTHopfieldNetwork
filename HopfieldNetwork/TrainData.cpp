@@ -10,9 +10,22 @@ TrainData::TrainData(string _imagePath, string _labelPath)
 
 void TrainData::load()
 {
-	images = readImageFile(imagePath);
+	images = readImageFile(imagePath, false);
 	labels = readLabelFile(labelPath);
 }
+
+auto proccess = [](const double input)
+{
+	if (input >= 1.0)
+	{
+		return 0.999;
+	}
+	else if (input <= 0.0)
+	{
+		return -0.999;
+	}
+	return input;
+};
 
 void TrainData::calcAverageNumeric()
 {
@@ -46,7 +59,8 @@ void TrainData::calcAverageNumeric()
 
 		if (counts[j] != 0)
 		{
-			_patterns[j] /= counts[j];
+			_patterns[j] *= 2.0 / counts[j];
+			_patterns[j] = _patterns[j].unaryExpr(proccess);
 		}
 		renderNumber(_patterns[j], ofs);
 		ofs << endl;
@@ -56,7 +70,7 @@ void TrainData::calcAverageNumeric()
 	patterns = _patterns;
 }
 
-VectorXd outputPattern(VectorXd v, ostream& out = cout)
+VectorXd outputPattern(const VectorXd& v, ostream& out = cout)
 {
 	int n = v.size();
 	VectorXd o(v.size());

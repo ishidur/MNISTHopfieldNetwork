@@ -222,7 +222,7 @@ void loadPatternSet()
 	//	}
 }
 
-tuple<int, double> verifyPattern(VectorXd input, bool output = false)
+tuple<int, double> verifyPattern(const VectorXd& input, bool output = false)
 {
 	array<double, 10> error = {};
 	double min;
@@ -253,20 +253,38 @@ tuple<int, double> verifyPattern(VectorXd input, bool output = false)
 
 double activationFunc(double input)
 {
-	double result = input * ACTIVATION_CONST;
-	if (result > 1.0)
-	{
-		result = 1.0;
-	}
-	else if (result < -1.0)
-	{
-		result = -1.0;
-	}
-	//	double result = 2.0 / (1.0 + exp(-input)) - 1.0;
+	//	double result = input * ACTIVATION_CONST;
+	//	if (result > 1.0)
+	//	{
+	//		result = 1.0;
+	//	}
+	//	else if (result < -1.0)
+	//	{
+	//		result = -1.0;
+	//	}
+	double result = 1.0 / (1.0 + exp(-input));
 	return result;
 }
 
-VectorXd updateVector(VectorXd vctr, int index)
+const double u0 = 0.5;
+auto actFunc = [](const double input) { return tanh(input / u0); };
+
+VectorXd activationFunc(const VectorXd& inputs)
+{
+	return inputs.unaryExpr(actFunc);
+}
+
+auto inverseActFunc = [](const double input)
+{
+	return 0.5 * u0 * log((1.0 + input) / (1.0 - input));
+};
+
+VectorXd inverseActivationFunc(const VectorXd& inputs)
+{
+	return inputs.unaryExpr(inverseActFunc);
+}
+
+VectorXd updateVector(const VectorXd& vctr, int index)
 {
 	VectorXd result = vctr;
 	//calculate input
@@ -278,11 +296,21 @@ VectorXd updateVector(VectorXd vctr, int index)
 	return result;
 }
 
-void noiseRecall(VectorXd input, ostream& out = std::cout)
+VectorXd calcDeltaU(const VectorXd& state, const VectorXd& innerVal)
+{
+	const double tau = 1.0;
+	const double deltaT = 0.01;
+	VectorXd delta = (-innerVal / tau + weightMtrx * state) * deltaT;
+	return delta;
+}
+
+void noiseRecall(const VectorXd& input, ostream& out = std::cout)
 {
 	VectorXd result = input;
+	VectorXd innerVal = inverseActivationFunc(input);
 	for (int i = 0; i < RECALL_TIME; ++i)
 	{
+		std::cout << "progress: " << i << " / " << RECALL_TIME << " \r" << flush;
 		if (i == 0)
 		{
 			out << "before:" << endl;
@@ -290,9 +318,12 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 			renderNum(result, out);
 			out << endl << endl;
 		}
-		//		pick one
-		int n = rand() % input.size();
-		result = updateVector(result, n);
+		//calc delta innerVal
+
+		//update innerVal
+		innerVal += calcDeltaU(result, innerVal);
+		//update state from innerVal
+		result = activationFunc(innerVal);
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
 
@@ -304,14 +335,18 @@ void noiseRecall(VectorXd input, ostream& out = std::cout)
 	out << endl << endl;
 }
 
-int recallTest(VectorXd input, int ans, ostream& out = std::cout)
+int recallTest(const VectorXd& input, int ans, ostream& out = std::cout)
 {
 	VectorXd result = input;
+	VectorXd innerVal = inverseActivationFunc(input);
 	for (int i = 0; i < RECALL_TIME; ++i)
 	{
-		//		pick one
-		int n = rand() % input.size();
-		result = updateVector(result, n);
+		//calc delta innerVal
+
+		//update innerVal
+		innerVal += calcDeltaU(result, innerVal);
+		//update state from innerVal
+		result = activationFunc(innerVal);
 	}
 	int num;
 	double error;
