@@ -14,34 +14,31 @@
 #include <ppl.h>
 #include <time.h>     // for clock()
 
-TestData testData;
-array<VectorXd, 10> patternSet;
-array<VectorXd, 10> validationSet;
-MatrixXd weightMtrx(PIXEL,PIXEL);
+TestData test_data;
+array<VectorXd, 10> pattern_set;
+array<VectorXd, 10> validation_set;
+MatrixXd weight_mtrx(PIXEL,PIXEL);
 
 vector<string> split(const string& str, char sep)
 {
 	vector<string> v;
 	stringstream ss(str);
 	string buffer;
-	while (getline(ss, buffer, sep))
-	{
-		v.push_back(buffer);
-	}
+	while (getline(ss, buffer, sep)) { v.push_back(buffer); }
 	return v;
 }
 
-void makePatternSet()
+void make_pattern_set()
 {
 	TrainData trainData;
 	trainData.load();
 	cout << "data loaded successfully!" << endl;
-	trainData.calcAverageNumeric();
-	trainData.savePatterns();
-	patternSet = trainData.patterns;
+	trainData.calc_average_numeric();
+	trainData.save_patterns();
+	pattern_set = trainData.patterns;
 }
 
-void loadVaildationPatternSet()
+void load_vaildation_pattern_set()
 {
 	ifstream ifs(VALIDATION_DATA_PATH);
 	cout << "loading from validation file" << endl;
@@ -53,18 +50,15 @@ void loadVaildationPatternSet()
 		int index = stod(p[0]);
 		p.erase(p.begin());
 		cout << index << "; " << p.size() << " pixels" << endl;
-		VectorXd tmpPattern = VectorXd::Zero(p.size());
-		for (int i = 0; i < p.size(); ++i)
-		{
-			tmpPattern[i] = stod(p[i]);
-		}
-		validationSet[index] = tmpPattern;
+		VectorXd tmp_pattern = VectorXd::Zero(p.size());
+		for (int i = 0; i < p.size(); ++i) { tmp_pattern[i] = stod(p[i]); }
+		validation_set[index] = tmp_pattern;
 	}
 	cout << "Done." << endl;
 	ifs.close();
 }
 
-void renderNum(VectorXd data, ostream& out = cout)
+void render_num(VectorXd data, ostream& out = cout)
 {
 	int n = int(sqrt(data.size()));
 	for (int i = 0; i < n; ++i)
@@ -73,51 +67,42 @@ void renderNum(VectorXd data, ostream& out = cout)
 		{
 			double a = double(data[i * n + j]);
 			out << a;
-			if (j < n - 1)
-			{
-				out << ",";
-			}
+			if (j < n - 1) { out << ","; }
 		}
 		out << endl;
 	}
 }
 
-void outMatrix(MatrixXd mtrx, ostream& out = cout)
+void export_matrix(MatrixXd mtrx, ostream& out = cout)
 {
 	for (int i = 0; i < mtrx.rows(); ++i)
 	{
 		for (int j = 0; j < mtrx.cols(); ++j)
 		{
 			out << mtrx(i, j);
-			if (j < mtrx.rows() - 1)
-			{
-				out << ",";
-			}
+			if (j < mtrx.rows() - 1) { out << ","; }
 		}
 		out << endl;
 	}
 }
 
-MatrixXd calcQMatrix()
+MatrixXd calc_q_matrix()
 {
 	cout << "calculating q matrix..." << endl;
-	int lim = patternSet.size();
+	int lim = pattern_set.size();
 	MatrixXd result = MatrixXd::Zero(lim, lim);
 	for (int i = 0; i < lim; ++i)
 	{
-		for (int j = 0; j < lim; ++j)
-		{
-			result(i, j) = double(patternSet[i].dot(patternSet[j])) / double(PIXEL);
-		}
+		for (int j = 0; j < lim; ++j) { result(i, j) = double(pattern_set[i].dot(pattern_set[j])) / double(PIXEL); }
 	}
 	cout << endl << "Done." << endl;
 	return result.inverse();
 }
 
-void calcWeightMatrix()
+void calc_weight_matrix()
 {
 	cout << "calculating weight matrix..." << endl;
-	MatrixXd qMtrxInv = calcQMatrix();
+	MatrixXd qMtrxInv = calc_q_matrix();
 	int n = 0;
 	int lim = PIXEL * PIXEL;
 	Concurrency::parallel_for(0, PIXEL, 1, [&n, &lim, &qMtrxInv](int i)
@@ -127,30 +112,30 @@ void calcWeightMatrix()
 			n++;
 			double status = double(n * 100.0 / (lim - 1));
 			cout << fixed << setprecision(1) << status << "%" << "\r" << flush;
-			weightMtrx(i, j) = 0.0;
-			for (int k = 0; k < patternSet.size(); ++k)
+			weight_mtrx(i, j) = 0.0;
+			for (int k = 0; k < pattern_set.size(); ++k)
 			{
-				for (int l = 0; l < patternSet.size(); ++l)
+				for (int l = 0; l < pattern_set.size(); ++l)
 				{
-					weightMtrx(i, j) += double(patternSet[k][i]) * qMtrxInv(k, l) * double(patternSet[l][j]) / double(PIXEL);
+					weight_mtrx(i, j) += double(pattern_set[k][i]) * qMtrxInv(k, l) * double(pattern_set[l][j]) / double(PIXEL);
 				}
 			}
 		}
 	});
 	cout << endl << "Done." << endl;
 	ofstream ofs(WEIGHT_MATRIX_FILENAME);
-	outMatrix(weightMtrx, ofs);
+	export_matrix(weight_mtrx, ofs);
 	ofs.close();
 }
 
-void loadWeightMtrxSet()
+void load_weight_mtrx_set()
 {
 	ifstream ifs(WEIGHT_MATRIX_PATH);
 	if (!ifs)
 	{
 		cout << "weight matirx file is not found" << endl;
 		cout << "create weight matirx file..." << endl;
-		calcWeightMatrix();
+		calc_weight_matrix();
 	}
 	else
 	{
@@ -163,22 +148,13 @@ void loadWeightMtrxSet()
 		int rows = 0;
 		while (getline(ifs, str))
 		{
-			if (rows >= weightMtrx.rows())
-			{
-				break;
-			}
-			double status = double(rows * 100.0 / (weightMtrx.rows() - 1));
-			if (progress.size() < int(status) / 5)
-			{
-				progress += "#";
-			}
+			if (rows >= weight_mtrx.rows()) { break; }
+			double status = double(rows * 100.0 / (weight_mtrx.rows() - 1));
+			if (progress.size() < int(status) / 5) { progress += "#"; }
 			cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" <<
 				flush;
 			vector<basic_string<char>> p = split(str, ',');
-			for (int i = 0; i < p.size(); ++i)
-			{
-				weightMtrx(rows, i) = stod(p[i]);
-			}
+			for (int i = 0; i < p.size(); ++i) { weight_mtrx(rows, i) = stod(p[i]); }
 			rows++;
 		}
 		cout << endl << "Done." << endl;
@@ -186,14 +162,14 @@ void loadWeightMtrxSet()
 	}
 }
 
-void loadPatternSet()
+void load_pattern_set()
 {
 	ifstream ifs(PATTERN_PATH);
 	if (!ifs)
 	{
 		cout << "pattern file is not found" << endl;
 		cout << "create patttern file..." << endl;
-		makePatternSet();
+		make_pattern_set();
 	}
 	else
 	{
@@ -206,12 +182,9 @@ void loadPatternSet()
 			int index = stod(p[0]);
 			p.erase(p.begin());
 			cout << index << "; " << p.size() << " pixels" << endl;
-			VectorXd tmpPattern = VectorXd::Zero(p.size());
-			for (int i = 0; i < p.size(); ++i)
-			{
-				tmpPattern[i] = stod(p[i]);
-			}
-			patternSet[index] = tmpPattern;
+			VectorXd tmp_pattern = VectorXd::Zero(p.size());
+			for (int i = 0; i < p.size(); ++i) { tmp_pattern[i] = stod(p[i]); }
+			pattern_set[index] = tmp_pattern;
 		}
 		cout << "Done." << endl;
 		ifs.close();
@@ -223,36 +196,29 @@ void loadPatternSet()
 	//	}
 }
 
-tuple<int, double> verifyPattern(const VectorXd& input, bool output = false)
+tuple<int, double> verify_pattern(const VectorXd& input, bool output = false)
 {
 	array<double, 10> error = {};
 	double min;
 	int num;
 	//	array<VectorXd, 10> answerSet = validationSet;
-	array<VectorXd, 10> answerSet = patternSet;
-	for (int i = 0; i < answerSet.size(); ++i)
+	array<VectorXd, 10> answer_set = pattern_set;
+	for (int i = 0; i < answer_set.size(); ++i)
 	{
 		error[i] = 0.0;
-
-		for (int j = 0; j < input.size(); ++j)
-		{
-			error[i] += (answerSet[i][j] - input[j]) * (answerSet[i][j] - input[j]);
-		}
+		for (int j = 0; j < input.size(); ++j) { error[i] += (answer_set[i][j] - input[j]) * (answer_set[i][j] - input[j]); }
 		error[i] /= double(input.size());
 		if (i == 0 || error[i] < min)
 		{
 			min = error[i];
 			num = i;
 		}
-		if (output)
-		{
-			cout << i << ", error " << scientific << setprecision(2) << error[i] << endl;
-		}
+		if (output) { cout << i << ", error " << scientific << setprecision(2) << error[i] << endl; }
 	}
 	return forward_as_tuple(num, error[num]);
 }
 
-double activationFunc(double input)
+double activation_func(double input)
 {
 	//	double result = input * ACTIVATION_CONST;
 	//	if (result > 1.0)
@@ -268,47 +234,38 @@ double activationFunc(double input)
 }
 
 const double u0 = 0.5;
-auto actFunc = [](const double input) { return tanh(input / u0); };
+auto act_func = [](const double input) { return tanh(input / u0); };
 
-VectorXd activationFunc(const VectorXd& inputs)
-{
-	return inputs.unaryExpr(actFunc);
-}
+VectorXd activation_func(const VectorXd& inputs) { return inputs.unaryExpr(act_func); }
 
-auto inverseActFunc = [](const double input)
-{
-	return 0.5 * u0 * log((1.0 + input) / (1.0 - input));
-};
+auto inverse_act_func = [](const double input) { return 0.5 * u0 * log((1.0 + input) / (1.0 - input)); };
 
-VectorXd inverseActivationFunc(const VectorXd& inputs)
-{
-	return inputs.unaryExpr(inverseActFunc);
-}
+VectorXd inverse_activation_func(const VectorXd& inputs) { return inputs.unaryExpr(inverse_act_func); }
 
-VectorXd updateVector(const VectorXd& vctr, int index)
+VectorXd update_vector(const VectorXd& vctr, int index)
 {
 	VectorXd result = vctr;
 	//calculate input
-	double inputVal = weightMtrx.col(index).dot(vctr);
+	double input_val = weight_mtrx.col(index).dot(vctr);
 	//ignite validation
-	double nextVal = activationFunc(inputVal);
+	double next_val = activation_func(input_val);
 	//update index value
-	result[index] = nextVal;
+	result[index] = next_val;
 	return result;
 }
 
-VectorXd calcDeltaU(const VectorXd& state, const VectorXd& innerVal)
+VectorXd calc_delta_u(const VectorXd& state, const VectorXd& innerVal)
 {
 	const double tau = 1.0;
-	const double deltaT = 0.01;
-	VectorXd delta = (-innerVal / tau + weightMtrx * state) * deltaT;
+	const double delta_t = 0.01;
+	VectorXd delta = (-innerVal / tau + weight_mtrx * state) * delta_t;
 	return delta;
 }
 
-void noiseRecall(const VectorXd& input, ostream& out = cout)
+void noise_recall(const VectorXd& input, ostream& out = cout)
 {
 	VectorXd result = input;
-	VectorXd innerVal = inverseActivationFunc(input);
+	VectorXd inner_val = inverse_activation_func(input);
 	for (int i = 0; i < RECALL_TIME; ++i)
 	{
 		cout << "progress: " << i << " / " << RECALL_TIME << " \r" << flush;
@@ -316,88 +273,85 @@ void noiseRecall(const VectorXd& input, ostream& out = cout)
 		{
 			out << "before:" << endl;
 
-			renderNum(result, out);
+			render_num(result, out);
 			out << endl << endl;
 		}
 		//calc delta innerVal
 
 		//update innerVal
-		innerVal += calcDeltaU(result, innerVal);
+		inner_val += calc_delta_u(result, inner_val);
 		//update state from innerVal
-		result = activationFunc(innerVal);
+		result = activation_func(inner_val);
 	}
 	out << "after " << RECALL_TIME << " iterations" << endl;
 
 	double error;
 	int num;
-	tie(num, error) = verifyPattern(result, true);
+	tie(num, error) = verify_pattern(result, true);
 	cout << "recalled: " << num << ", error " << scientific << setprecision(3) << error << endl;
-	renderNum(result, out);
+	render_num(result, out);
 	out << endl << endl;
 }
 
-int recallTest(const VectorXd& input, int ans, ostream& out = cout)
+int recall_test(const VectorXd& input, int ans, ostream& out = cout)
 {
 	VectorXd result = input;
-	VectorXd innerVal = inverseActivationFunc(input);
+	VectorXd inner_val = inverse_activation_func(input);
 	for (int i = 0; i < RECALL_TIME; ++i)
 	{
 		//calc delta innerVal
 
 		//update innerVal
-		innerVal += calcDeltaU(result, innerVal);
+		inner_val += calc_delta_u(result, inner_val);
 		//update state from innerVal
-		result = activationFunc(innerVal);
+		result = activation_func(inner_val);
 	}
 	int num;
 	double error;
-	tie(num, error) = verifyPattern(result);
+	tie(num, error) = verify_pattern(result);
 	out << "answer: ," << ans << ",recalled: ," << num << ", error," << scientific << setprecision(3) << error;
 
-	tie(num, error) = verifyPattern(input);
+	tie(num, error) = verify_pattern(input);
 	out << ",default validate: ," << num << endl;
 	return num;
 }
 
-void runNoiseRecallTest()
+void run_noise_recall_test()
 {
 	//	testData.load();
 	ofstream ofs("noise.csv");
 	for (int i = 0; i < 10; ++i)
 	{
 		//		VectorXd testMtrx = testData.images[i];
-		VectorXd testMtrx = patternSet[i];
+		VectorXd test_mtrx = pattern_set[i];
 		//add noise
 		for (int j = 0; j < 200; ++j)
 		{
-			int n = rand() % testMtrx.size();
-			testMtrx[n] *= -1;
+			int n = rand() % test_mtrx.size();
+			test_mtrx[n] *= -1;
 		}
-		noiseRecall(testMtrx, ofs);
+		noise_recall(test_mtrx, ofs);
 	}
 	ofs.close();
 }
 
-void runTest()
+void run_test()
 {
-	testData.load();
+	test_data.load();
 	ofstream ofs("testResult.csv");
 	array<int, 10> trial = {};
 	array<int, 10> correct = {};
-	int n = testData.labels.size();
+	int n = test_data.labels.size();
 	int sum = 1;
 	//	float progress;
 	cout << endl;
 
 	Concurrency::parallel_for(0, n, 1, [&sum, &ofs, &trial, &correct](int i)
 	{
-		cout << "progress: " << sum << " / " << testData.labels.size() << " \r" << flush;
-		int result = recallTest(testData.images[i], testData.labels[i], ofs);
-		trial[testData.labels[i]] += 1;
-		if (result == testData.labels[i])
-		{
-			correct[testData.labels[i]] += 1;
-		}
+		cout << "progress: " << sum << " / " << test_data.labels.size() << " \r" << flush;
+		int result = recall_test(test_data.images[i], test_data.labels[i], ofs);
+		trial[test_data.labels[i]] += 1;
+		if (result == test_data.labels[i]) { correct[test_data.labels[i]] += 1; }
 		sum++;
 	});
 
@@ -414,11 +368,11 @@ void runTest()
 int main()
 {
 	clock_t start = clock();
-	loadPatternSet();
-	loadWeightMtrxSet();
-	loadVaildationPatternSet();
+	load_pattern_set();
+	load_weight_mtrx_set();
+	load_vaildation_pattern_set();
 	//	runNoiseRecallTest();
-	runTest();
+	run_test();
 	clock_t end = clock();
 	cout << "duration = " << double(end - start) / CLOCKS_PER_SEC << "sec.\n";
 	return 0;
