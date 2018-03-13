@@ -3,7 +3,7 @@
 #include <iomanip>
 
 //バイト列からintへの変換
-int reverseInt(int i)
+int reverse_int(int i)
 {
 	unsigned char c1 = i & 255;
 	unsigned char c2 = (i >> 8) & 255;
@@ -13,7 +13,7 @@ int reverseInt(int i)
 	return (int(c1) << 24) + (int(c2) << 16) + (int(c3) << 8) + c4;
 }
 
-vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
+vector<VectorXd> DataSet::read_image_file(string filename, bool isTest)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
@@ -23,13 +23,13 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
 
 	//ヘッダー部より情報を読取る。
 	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
-	magic_number = reverseInt(magic_number);
+	magic_number = reverse_int(magic_number);
 	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
-	number_of_images = reverseInt(number_of_images);
+	number_of_images = reverse_int(number_of_images);
 	ifs.read(reinterpret_cast<char*>(&rows), sizeof(rows));
-	rows = reverseInt(rows);
+	rows = reverse_int(rows);
 	ifs.read(reinterpret_cast<char*>(&cols), sizeof(cols));
-	cols = reverseInt(cols);
+	cols = reverse_int(cols);
 
 	vector<VectorXd> images(number_of_images);
 	cout << magic_number << " " << number_of_images << " " << rows << " " << cols << endl;
@@ -39,10 +39,7 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
 	for (int i = 0; i < number_of_images; i++)
 	{
 		double status = double(i * 100.0 / (number_of_images - 1));
-		if (progress.size() < int(status) / 5)
-		{
-			progress += "#";
-		}
+		if (progress.size() < int(status) / 5) { progress += "#"; }
 		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		images[i] = VectorXd::Zero(PIXEL);
 		for (int row = 0; row < rows; row++)
@@ -51,18 +48,19 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
 			{
 				unsigned char temp = 0;
 				ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
-				if (isInt)
+				if (isTest)
 				{
-					int a = int(temp / 255 + 0.5);
-					if (a == 0)
-					{
-						a = -1;
-					}
+					double a = double(temp / 255.0);
+					if (a == 0.0) { a = -0.999; }
+					else if (a == 1.0) { a = 0.999; }
 					images[i][rows * row + col] = double(a);
 				}
 				else
 				{
-					images[i][rows * row + col] = double(temp);
+					double a = double(temp / 255.0);
+					if (a == 0.0) { a = -0.999; }
+					else if (a == 1.0) { a = 0.999; }
+					images[i][rows * row + col] = double(a);
 				}
 			}
 		}
@@ -71,16 +69,16 @@ vector<VectorXd> DataSet::readImageFile(string filename, bool isInt)
 	return images;
 }
 
-vector<double> DataSet::readLabelFile(string filename)
+vector<double> DataSet::read_label_file(string filename)
 {
 	ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary);
 	int magic_number = 0;
 	int number_of_images = 0;
 	//ヘッダー部より情報を読取る。
 	ifs.read(reinterpret_cast<char*>(&magic_number), sizeof(magic_number));
-	magic_number = reverseInt(magic_number);
+	magic_number = reverse_int(magic_number);
 	ifs.read(reinterpret_cast<char*>(&number_of_images), sizeof(number_of_images));
-	number_of_images = reverseInt(number_of_images);
+	number_of_images = reverse_int(number_of_images);
 
 	vector<double> _label(number_of_images);
 
@@ -92,10 +90,7 @@ vector<double> DataSet::readLabelFile(string filename)
 	for (int i = 0; i < number_of_images; i++)
 	{
 		double status = double(i * 100.0 / (number_of_images - 1));
-		if (progress.size() < int(status) / 5)
-		{
-			progress += "#";
-		}
+		if (progress.size() < int(status) / 5) { progress += "#"; }
 		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		unsigned char temp = 0;
 		ifs.read(reinterpret_cast<char*>(&temp), sizeof(temp));
@@ -105,23 +100,16 @@ vector<double> DataSet::readLabelFile(string filename)
 	return _label;
 }
 
-void DataSet::renderNumber(VectorXd data, ostream& out)
+void DataSet::render_number(VectorXd data, ostream& out)
 {
 	int n = int(sqrt(data.size()));
 	for (int i = 0; i < n; ++i)
 	{
 		for (int j = 0; j < n; ++j)
 		{
-			int a = int(data[i * n + j] / 255 + 0.7);
-			if (a == 0)
-			{
-				a = -1;
-			}
+			double a = double(data[i * n + j]);
 			out << a;
-			if (j < n - 1)
-			{
-				out << ",";
-			}
+			if (j < n - 1) { out << ","; }
 		}
 		out << endl;
 	}

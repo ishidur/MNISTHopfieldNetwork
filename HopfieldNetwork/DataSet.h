@@ -6,7 +6,7 @@
 class DataSet
 {
 public:
-	vector<VectorXd> readImageFile(string filename, bool isIntStyle = false);
-	vector<double> readLabelFile(string filename);
-	void renderNumber(VectorXd data, ostream& out = cout);
+	vector<VectorXd> read_image_file(string filename, bool isTest = false);
+	vector<double> read_label_file(string filename);
+	void render_number(VectorXd data, ostream& out = cout);
 };

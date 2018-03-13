@@ -10,11 +10,18 @@ TrainData::TrainData(string _imagePath, string _labelPath)
 
 void TrainData::load()
 {
-	images = readImageFile(imagePath);
-	labels = readLabelFile(labelPath);
+	images = read_image_file(imagePath, false);
+	labels = read_label_file(labelPath);
 }
 
-void TrainData::calcAverageNumeric()
+auto proccess = [](const double input)
+{
+	if (input >= 1.0) { return 0.999; }
+	else if (input <= 0.0) { return -0.999; }
+	return input;
+};
+
+void TrainData::calc_average_numeric()
 {
 	array<VectorXd, 10> _patterns;
 	_patterns.fill(VectorXd::Zero(PIXEL));
@@ -25,10 +32,7 @@ void TrainData::calcAverageNumeric()
 	for (int i = 0; i < images.size(); ++i)
 	{
 		double status = double(i * 100.0 / (images.size() - 1));
-		if (progress.size() < int(status) / 5)
-		{
-			progress += "#";
-		}
+		if (progress.size() < int(status) / 5) { progress += "#"; }
 		cout << "progress: " << setw(4) << right << fixed << setprecision(1) << (status) << "% " << progress << "\r" << flush;
 		_patterns[int(labels[i])] += images[i];
 		counts[int(labels[i])] += 1;
@@ -43,11 +47,13 @@ void TrainData::calcAverageNumeric()
 	{
 		progress += "#";
 		cout << "progress: " << setw(3) << right << j << " " << progress << "\r" << flush;
+
 		if (counts[j] != 0)
 		{
-			_patterns[j] /= counts[j];
+			_patterns[j] *= 2.0 / counts[j];
+			_patterns[j] = _patterns[j].unaryExpr(proccess);
 		}
-		renderNumber(_patterns[j], ofs);
+		render_number(_patterns[j], ofs);
 		ofs << endl;
 	}
 	ofs.close();
@@ -55,34 +61,24 @@ void TrainData::calcAverageNumeric()
 	patterns = _patterns;
 }
 
-VectorXd outputPattern(VectorXd v, ostream& out = cout)
+VectorXd output_pattern(const VectorXd& v, ostream& out = cout)
 {
 	int n = v.size();
 	VectorXd o(v.size());
 	for (int i = 0; i < n; ++i)
 	{
-		int a = int(v[i] / 255 + 0.7);
-		if (a == 0)
-		{
-			a = -1;
-		}
+		double a = double(v[i]);
 		out << a;
-		if (i < n - 1)
-		{
-			out << ",";
-		}
+		if (i < n - 1) { out << ","; }
 		o[i] = a;
 	}
 	out << endl;
 	return o;
 }
 
-void TrainData::savePatterns()
+void TrainData::save_patterns()
 {
-	if (patterns[0].size() == 0)
-	{
-		return;
-	}
+	if (patterns[0].size() == 0) { return; }
 	ofstream ofs(rawFileName);
 	cout << "writing pattern data file..." << endl;
 	string progress = "";
@@ -91,7 +87,7 @@ void TrainData::savePatterns()
 		progress += "#";
 		cout << progress << "\r" << flush;
 		ofs << i << ",";
-		patterns[i] = outputPattern(patterns[i], ofs);
+		patterns[i] = output_pattern(patterns[i], ofs);
 	}
 	ofs.close();
 	cout << "write file: " << rawFileName << " successfully!" << endl;
