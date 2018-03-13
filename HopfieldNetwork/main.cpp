@@ -1,4 +1,4 @@
-// HopfieldNetwork.cpp : ƒRƒ“ƒ\[ƒ‹ ƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÌƒGƒ“ƒgƒŠ ƒ|ƒCƒ“ƒg‚ğ’è‹`‚µ‚Ü‚·B
+// HopfieldNetwork.cpp : ã‚³ãƒ³ã‚½ãƒ¼ãƒ« ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã®ã‚¨ãƒ³ãƒˆãƒª ãƒã‚¤ãƒ³ãƒˆã‚’å®šç¾©ã—ã¾ã™ã€‚
 //
 
 #include "stdafx.h"
@@ -42,7 +42,7 @@ void load_vaildation_pattern_set()
 {
 	ifstream ifs(VALIDATION_DATA_PATH);
 	cout << "loading from validation file" << endl;
-	//csvƒtƒ@ƒCƒ‹‚ğ1s‚¸‚Â“Ç‚İ‚Ş
+	//csvãƒ•ã‚¡ã‚¤ãƒ«ã‚’1è¡Œãšã¤èª­ã¿è¾¼ã‚€
 	string str;
 	while (getline(ifs, str))
 	{
@@ -141,7 +141,7 @@ void load_weight_mtrx_set()
 	{
 		cout << "loading from weight matirx file" << endl;
 
-		//csvƒtƒ@ƒCƒ‹‚ğ1s‚¸‚Â“Ç‚İ‚Ş
+		//csvãƒ•ã‚¡ã‚¤ãƒ«ã‚’1è¡Œãšã¤èª­ã¿è¾¼ã‚€
 		string str;
 		string progress = "";
 
@@ -174,7 +174,7 @@ void load_pattern_set()
 	else
 	{
 		cout << "loading from pattern file" << endl;
-		//csvƒtƒ@ƒCƒ‹‚ğ1s‚¸‚Â“Ç‚İ‚Ş
+		//csvãƒ•ã‚¡ã‚¤ãƒ«ã‚’1è¡Œãšã¤èª­ã¿è¾¼ã‚€
 		string str;
 		while (getline(ifs, str))
 		{
